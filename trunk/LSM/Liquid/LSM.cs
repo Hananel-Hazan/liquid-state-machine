@@ -465,7 +465,7 @@ namespace Liquid
 				if (tempdata[i].Tag==groupNames[0])
 					tempdata[i].Target = new double[]{1};
 				else
-					tempdata[i].Target = new double[]{-1};
+					tempdata[i].Target = new double[]{Param.detector.Readout_Negative};
 			}
 			return(Learn(ref Param, ref tempdata,0,1, groupNames));
 		}

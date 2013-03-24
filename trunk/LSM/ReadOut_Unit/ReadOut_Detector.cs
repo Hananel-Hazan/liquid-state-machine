@@ -362,7 +362,7 @@ public class ReadOut_Detector
 	}//--------------------------------------------------------------------
 
 	public int windowFinder(ref bool[,] LearnVec,ref bool[] input,out double[] trainingSet,
-	                        int inputStart, int window,int timeInWin)
+	                        int inputStart, int window,int timeInWin,int neg)
 	{
 		int Activity=0;
 		
@@ -386,7 +386,7 @@ public class ReadOut_Detector
 					trainingSet[counter] = 1;
 					Activity++;
 				}else
-					trainingSet[counter] = 0;
+					trainingSet[counter] = neg; //0 
 				counter++;
 			}
 		}
@@ -490,9 +490,9 @@ public class ReadOut_Detector
 			int Activity = 0;
 			
 			if (Param.detector.Readout_Activity_during_Input_time==1)
-				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size);
+				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
 			else if (Param.detector.Readout_Activity_during_Input_time==0)
-				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size);
+				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
 			
 			if ((Activity==0)||(Activity==Window_Size*LearnVec.GetLength(0)))
 				continue;
@@ -722,9 +722,9 @@ public class ReadOut_Detector
 			int Activity = 0;
 			
 			if (Param.detector.Readout_Activity_during_Input_time==1)
-				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size);
+				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
 			else if (Param.detector.Readout_Activity_during_Input_time==0)
-				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size);
+				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
 			
 			if ((Activity==0)||(Activity==Window_Size*TestVec.GetLength(0)))
 				continue;
@@ -743,9 +743,12 @@ public class ReadOut_Detector
 				}
 				if (this.ReadOut4EveryWindow == 1)
 					output[0] +=  temp;
-				else
-					output[win] +=  temp * this.Window_Accuracy[win];
-				
+				else{
+					if (Param.detector.ReadOut_Ignore_Window_Acuracy==1)
+						output[win] +=  temp ;
+					else
+						output[win] +=  temp * this.Window_Accuracy[win];
+				}
 			}else if (((this.model>1)&&(this.model<7))||(this.model==9)){
 				if (readoutNumber>=network.Length) continue;
 				double[] Netoutput = new double[OutputSize];
@@ -762,7 +765,10 @@ public class ReadOut_Detector
 						output[0] +=  Netoutput[0];
 						count++;
 					}else if (this.Window_Accuracy[readoutNumber]>0){
-						output[win] +=  Netoutput[0] * this.Window_Accuracy[readoutNumber];
+						if (Param.detector.ReadOut_Ignore_Window_Acuracy==1)
+							output[win] +=  Netoutput[0];
+						else
+							output[win] +=  Netoutput[0] * this.Window_Accuracy[readoutNumber];
 						count++;
 					}
 				}
@@ -786,9 +792,9 @@ public class ReadOut_Detector
 				bool[,] temp = new bool[Window_Size,neurons];
 				
 				if (Param.detector.Readout_Activity_during_Input_time==1)
-					windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size);
+					windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
 				else if (Param.detector.Readout_Activity_during_Input_time==0)
-					windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size);
+					windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
 
 				double[] voltOutput;
 				int Firing=0;

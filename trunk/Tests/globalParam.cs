@@ -776,6 +776,7 @@ public class Readout
 	public int[] ReadOut_Unit;
 	public int[] ReadOut_unit_Model_AP_or_Sequ;
 	public int[] ReadOut4EveryWindow;
+	public int ReadOut_Ignore_Window_Acuracy;
 
 	public int LSM_Runing_Interval;
 	public int LSM_1sec_interval;
@@ -893,6 +894,12 @@ public class Readout
 		for (int i = 0; i < time; i++) {
 			ReadOut_unit_Model_AP_or_Sequ[i] = Convert.ToInt32(words[i]);
 		}
+		
+		dictionary.TryGetValue("ReadOut_Ignore_Window_Acuracy",out temp);
+		if (string.IsNullOrEmpty(temp))
+			Console.WriteLine("configuration-ReadOut_Ignore_Window_Acuracy");
+		ReadOut_Ignore_Window_Acuracy = Convert.ToInt32(temp);
+		
 		
 		dictionary.TryGetValue("ReadOut4EveryWindow",out temp);
 		if (string.IsNullOrEmpty(temp))
