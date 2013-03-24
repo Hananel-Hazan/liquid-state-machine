@@ -405,17 +405,10 @@ namespace Neurons
 			
 			if (STDP==1){
 				
-				if ((this.firedBeforeXciycles>0)&&(this.firedBeforeXciycles<=LTDwin)){
+				if ((Nunit.internal_Refactory)&&(this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin)){
 					decrease_weight(place, (LTDwindows[this.firedBeforeXciycles] * LTDchange));
 					LTDcounter++;
 				}
-//				else
-					if (Nunit.internal_Refactory){
-					decrease_weight(place, (LTDchange));
-					LTDcounter++;
-				}
-				
-				
 			}
 			
 //			if ((STDP==1)&&((Nunit.internal_Refactory)||((this.firedBeforeXciycles>0)&&(this.firedBeforeXciycles<=LTDwin)))){
