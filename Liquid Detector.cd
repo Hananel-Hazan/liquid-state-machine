@@ -1,0 +1,465 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<ClassDiagram Zoom="1" MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="Liquid.LSM" Collapsed="False">
+    <Position X="0.5" Y="23.4" Width="2.576022" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronNetwork.Network" Collapsed="False">
+    <Position X="0.5" Y="29.6" Width="2.891789" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Neurons.Neuron" Collapsed="False">
+    <Position X="0.5" Y="36.9" Width="2.512965" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Liquid_Detector.Tests.DamageLSM.Program" Collapsed="False">
+    <Position X="0.5" Y="46.4" Width="1.693659" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Program" Collapsed="False">
+    <Position X="0.5" Y="48" Width="1.033014" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Liquid_Detector.Tests.Sound.TIMIT.TIMIT" Collapsed="False">
+    <Position X="0.5" Y="49.3" Width="1.467375" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Input2liquid" Collapsed="False">
+    <Position X="0.5" Y="50.9" Width="2.751388" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronParametes" Collapsed="False">
+    <Position X="0.5" Y="53.3" Width="4.081486" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NetworkParm" Collapsed="False">
+    <Position X="0.5" Y="58.4" Width="2.769918" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Readout" Collapsed="False">
+    <Position X="0.5" Y="64.6" Width="2.795485" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="testParam" Collapsed="False">
+    <Position X="0.5" Y="68.7" Width="2.725124" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="globalParam" Collapsed="False">
+    <Position X="0.5" Y="73.2" Width="2.216857" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="cumulateor" Collapsed="False">
+    <Position X="0.5" Y="82.1" Width="2.317565" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="ReadOut_Detector" Collapsed="False">
+    <Position X="0.5" Y="85.1" Width="2.473595" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronArch.McCulloch_Pitts" Collapsed="False">
+    <Position X="0.5" Y="13.7" Width="2.205739" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Prediction" Collapsed="False">
+    <Position X="0.5" Y="92.1" Width="2.198288" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Problem" Collapsed="False">
+    <Position X="0.5" Y="94" Width="1.423278" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.RangeTransform" Collapsed="False">
+    <Position X="0.5" Y="97.9" Width="2.278249" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Scaling" Collapsed="False">
+    <Position X="0.5" Y="101.9" Width="2.198288" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Tempotron" Collapsed="False">
+    <Position X="0.5" Y="103.3" Width="1.679557" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="LIF" Collapsed="False">
+    <Position X="0.5" Y="107.9" Width="1.632751" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Cache" Collapsed="False">
+    <Position X="0.5" Y="111.3" Width="2.176598" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Solver" Collapsed="False">
+    <Position X="0.5" Y="0.5" Width="2.01192" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Solver_NU" Collapsed="False">
+    <Position X="0.5" Y="8.6" Width="1.662453" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.SVC_Q" Collapsed="False">
+    <Position X="0.5" Y="20.3" Width="1.347331" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.ONE_CLASS_Q" Collapsed="False">
+    <Position X="2.1" Y="20.3" Width="2.238717" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.SVR_Q" Collapsed="False">
+    <Position X="4.8" Y="20.3" Width="1.347331" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Procedures" Collapsed="False">
+    <Position X="0.5" Y="116.9" Width="2.217448" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronArch.Unit" Collapsed="False">
+    <Position X="0.5" Y="10.9" Width="1.713317" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.GaussianTransform" Collapsed="False">
+    <Position X="0.5" Y="124.3" Width="2.569254" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SupportClass" Collapsed="False">
+    <Position X="0.5" Y="127.3" Width="1.924264" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NN_Pr.Perceptron" Collapsed="False">
+    <Position X="0.5" Y="132.6" Width="1.686569" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NN_Pr.Pattern" Collapsed="False">
+    <Position X="0.5" Y="135.4" Width="1.408859" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.SVMExtensions" Collapsed="False">
+    <Position X="0.5" Y="138.3" Width="2.266876" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.TemporaryCulture" Collapsed="False">
+    <Position X="0.5" Y="139.7" Width="2.266876" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="plotGraph" Collapsed="False">
+    <Position X="0.5" Y="141.6" Width="1.78443" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Training" Collapsed="False">
+    <Position X="0.5" Y="144.7" Width="2.198288" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Utils_Functions.Manipulation_On_Inputs" Collapsed="False">
+    <Position X="0.5" Y="147" Width="3.036647" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Interface Name="SVM.IRangeTransform" Collapsed="False">
+    <Position X="0.5" Y="150.7" Width="1.45131" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Interface>
+  <Class Name="Liquid_Detector.Tests.DamageLSM.Input" Collapsed="False">
+    <Position X="0.5" Y="152.2" Width="2.11631" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Utils_Functions.Combinator" Collapsed="False">
+    <Position X="0.5" Y="156" Width="1.7507" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Liquid_Detector.Tests.DamageLSM.Reports" Collapsed="False">
+    <Position X="0.5" Y="158.7" Width="1.562604" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="plotxy" Collapsed="False">
+    <Position X="0.5" Y="160.2" Width="1.78443" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Interface Name="SVM.IQMatrix" Collapsed="False">
+    <Position X="0.5" Y="164.5" Width="1.347331" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Interface>
+  <Class Name="SVM.Kernel" Collapsed="False">
+    <Position X="0.5" Y="16.6" Width="2.22341" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Model" Collapsed="False">
+    <Position X="0.5" Y="166.1" Width="2.374606" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Liquid_Detector.Tests.TrentoKore.Parameters" Collapsed="False">
+    <Position X="0.5" Y="171.8" Width="1.749303" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.Node" Collapsed="False">
+    <Position X="0.5" Y="173.2" Width="1.296735" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Utils_Functions.Matrix_Arithmetic" Collapsed="False">
+    <Position X="0.5" Y="176.1" Width="2.331315" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="LiquidHRF.Comparator" Collapsed="False">
+    <Position X="0.5" Y="182.3" Width="1.858498" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Enum Name="SVM.SvmType" Collapsed="False">
+    <Position X="0.5" Y="184.4" Width="2.043405" />
+    <Compartments />
+  </Enum>
+  <Enum Name="SVM.KernelType" Collapsed="False">
+    <Position X="0.5" Y="186.2" Width="2.239557" />
+    <Compartments />
+  </Enum>
+  <Class Name="SVM.Parameter" Collapsed="False">
+    <Position X="0.5" Y="188" Width="2.185651" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="LiquidHRF.DataSet" Collapsed="False">
+    <Position X="0.5" Y="194.3" Width="1.769499" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronArch.IzakNeuron" Collapsed="False">
+    <Position X="3" Y="13.7" Width="1.73695" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Utils_Functions.randomIntArr" Collapsed="False">
+    <Position X="0.5" Y="197.1" Width="2.663463" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Utils_Functions.RandomPowerLaw" Collapsed="False">
+    <Position X="0.5" Y="200.2" Width="2.492448" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Utils_Functions.PowerLaw" Collapsed="False">
+    <Position X="0.5" Y="204.5" Width="1.636081" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.ParameterSelection" Collapsed="False">
+    <Position X="0.5" Y="207.7" Width="2.198288" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronArch.LIFmodle2" Collapsed="False">
+    <Position X="5.1" Y="13.7" Width="1.788888" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.RankPair" Collapsed="False">
+    <Position X="0.5" Y="211.1" Width="1.511471" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.CurvePoint" Collapsed="False">
+    <Position X="0.5" Y="213.9" Width="1.700426" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.PerformanceEvaluator" Collapsed="False">
+    <Position X="0.5" Y="216.5" Width="2.833835" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="False" />
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+      <Compartment Name="Nested Types" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="NeuronArch.LIFNeuron" Collapsed="False">
+    <Position X="7.3" Y="13.7" Width="1.648756" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Liquid_Detector.Tests.TrentoKore.TrentoKore" Collapsed="False">
+    <Position X="0.5" Y="224.3" Width="1.380739" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="Liquid_Detector.Tests.Sound.TIMIT.Parameters" Collapsed="False">
+    <Position X="0.5" Y="226.3" Width="1.749303" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+    </Compartments>
+  </Class>
+  <Class Name="SVM.PrecomputedKernel" Collapsed="False">
+    <Position X="0.5" Y="227.7" Width="2.582145" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="False" />
+      <Compartment Name="Fields" Collapsed="False" />
+    </Compartments>
+  </Class>
+</ClassDiagram>
