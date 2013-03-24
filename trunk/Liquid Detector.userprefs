@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Tests\globalParam.cs">
+    <Files>
+      <File FileName="LSM\Liquid\LSM.cs" Line="31" Column="9" />
+      <File FileName="LSM\Liquid\NeuronNetwork.cs" Line="90" Column="29" />
+      <File FileName="Tests\DamageInLSM\DamageLSM.cs" Line="132" Column="12" />
+      <File FileName="Tests\globalParam.cs" Line="12" Column="29" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="D:\Rimon.Docs\2010\C#\Liquid Detector\Liquid Detector\LSM\Liquid\NeuronNetwork.cs" line="101" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

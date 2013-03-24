@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{06CBB0D2-E9B9-48BA-B85C-FAC80CA059CE}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Liquid_Detector</RootNamespace>
+    <AssemblyName>Liquid Detector</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SourceAnalysisOverrideSettingsFile>Q:\P.APPs\Programing\c#\SharpDevelop\bin\..\Settings\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <NoStdLib>False</NoStdLib>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DelaySign>False</DelaySign>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+    <CodeAnalysisRules>-Microsoft.Design#CA1000;-Microsoft.Design#CA1001;-Microsoft.Design#CA1002;-Microsoft.Design#CA1003;-Microsoft.Design#CA1004;-Microsoft.Design#CA1005;-Microsoft.Design#CA1006;-Microsoft.Design#CA1007;-Microsoft.Design#CA1008;-Microsoft.Design#CA1009;-Microsoft.Design#CA1010;-Microsoft.Design#CA1011;-Microsoft.Design#CA1012;-Microsoft.Design#CA1013;-Microsoft.Design#CA1014;-Microsoft.Design#CA1016;-Microsoft.Design#CA1017;-Microsoft.Design#CA1018;-Microsoft.Design#CA1019;-Microsoft.Design#CA1020;-Microsoft.Design#CA1021;-Microsoft.Design#CA1023;-Microsoft.Design#CA1024;-Microsoft.Design#CA1025;-Microsoft.Design#CA1026;-Microsoft.Design#CA1027;-Microsoft.Design#CA1028;-Microsoft.Design#CA1030;-Microsoft.Design#CA1031;-Microsoft.Design#CA1032;-Microsoft.Design#CA1033;-Microsoft.Design#CA1034;-Microsoft.Design#CA1035;-Microsoft.Design#CA1036;-Microsoft.Design#CA1038;-Microsoft.Design#CA1039;-Microsoft.Design#CA1040;-Microsoft.Design#CA1041;-Microsoft.Design#CA1043;-Microsoft.Design#CA1044;-Microsoft.Design#CA1045;-Microsoft.Design#CA1046;-Microsoft.Design#CA1047;-Microsoft.Design#CA1048;-Microsoft.Design#CA1049;-Microsoft.Design#CA1050;-Microsoft.Design#CA1051;-Microsoft.Design#CA1052;-Microsoft.Design#CA1053;-Microsoft.Design#CA1054;-Microsoft.Design#CA1055;-Microsoft.Design#CA1056;-Microsoft.Design#CA1057;-Microsoft.Design#CA1058;-Microsoft.Design#CA1059;-Microsoft.Design#CA1060;-Microsoft.Design#CA1061;-Microsoft.Design#CA1063;-Microsoft.Design#CA1064;-Microsoft.Design#CA1065;-Microsoft.Design#CA2210;-Microsoft.Globalization#CA1300;-Microsoft.Globalization#CA1301;-Microsoft.Globalization#CA1302;-Microsoft.Globalization#CA1304;-Microsoft.Globalization#CA1305;-Microsoft.Globalization#CA1306;-Microsoft.Globalization#CA1307;-Microsoft.Globalization#CA1308;-Microsoft.Globalization#CA1309;-Microsoft.Globalization#CA2101;-Microsoft.Interoperability#CA1400;-Microsoft.Interoperability#CA1401;-Microsoft.Interoperability#CA1402;-Microsoft.Interoperability#CA1403;-Microsoft.Interoperability#CA1404;-Microsoft.Interoperability#CA1405;-Microsoft.Interoperability#CA1406;-Microsoft.Interoperability#CA1407;-Microsoft.Interoperability#CA1408;-Microsoft.Interoperability#CA1409;-Microsoft.Interoperability#CA1410;-Microsoft.Interoperability#CA1411;-Microsoft.Interoperability#CA1412;-Microsoft.Interoperability#CA1413;-Microsoft.Interoperability#CA1414;-Microsoft.Interoperability#CA1415;-Microsoft.Mobility#CA1600;-Microsoft.Mobility#CA1601;-Microsoft.Naming#CA1700;-Microsoft.Naming#CA1701;-Microsoft.Naming#CA1702;-Microsoft.Naming#CA1703;-Microsoft.Naming#CA1704;-Microsoft.Naming#CA1707;-Microsoft.Naming#CA1708;-Microsoft.Naming#CA1709;-Microsoft.Naming#CA1710;-Microsoft.Naming#CA1711;-Microsoft.Naming#CA1712;-Microsoft.Naming#CA1713;-Microsoft.Naming#CA1714;-Microsoft.Naming#CA1715;-Microsoft.Naming#CA1716;-Microsoft.Naming#CA1717;-Microsoft.Naming#CA1719;-Microsoft.Naming#CA1720;-Microsoft.Naming#CA1721;-Microsoft.Naming#CA1722;-Microsoft.Naming#CA1724;-Microsoft.Naming#CA1725;-Microsoft.Naming#CA1726;-Microsoft.Security#CA2102;-Microsoft.Security#CA2103;-Microsoft.Security#CA2104;-Microsoft.Security#CA2105;-Microsoft.Security#CA2106;-Microsoft.Security#CA2107;-Microsoft.Security#CA2108;-Microsoft.Security#CA2109;-Microsoft.Security#CA2111;-Microsoft.Security#CA2112;-Microsoft.Security#CA2114;-Microsoft.Security#CA2115;-Microsoft.Security#CA2116;-Microsoft.Security#CA2117;-Microsoft.Security#CA2118;-Microsoft.Security#CA2119;-Microsoft.Security#CA2120;-Microsoft.Security#CA2121;-Microsoft.Security#CA2122;-Microsoft.Security#CA2123;-Microsoft.Security#CA2124;-Microsoft.Security#CA2126;-Microsoft.Security#CA2127;-Microsoft.Security#CA2128;-Microsoft.Security#CA2129;-Microsoft.Usage#CA1801;-Microsoft.Usage#CA1806;-Microsoft.Usage#CA1816;-Microsoft.Usage#CA2200;-Microsoft.Usage#CA2201;-Microsoft.Usage#CA2205;-Microsoft.Usage#CA2207;-Microsoft.Usage#CA2208;-Microsoft.Usage#CA2211;-Microsoft.Usage#CA2212;-Microsoft.Usage#CA2213;-Microsoft.Usage#CA2214;-Microsoft.Usage#CA2216;-Microsoft.Usage#CA2217;-Microsoft.Usage#CA2218;-Microsoft.Usage#CA2219;-Microsoft.Usage#CA2220;-Microsoft.Usage#CA2221;-Microsoft.Usage#CA2222;-Microsoft.Usage#CA2223;-Microsoft.Usage#CA2224;-Microsoft.Usage#CA2225;-Microsoft.Usage#CA2226;-Microsoft.Usage#CA2227;-Microsoft.Usage#CA2228;-Microsoft.Usage#CA2229;-Microsoft.Usage#CA2230;-Microsoft.Usage#CA2231;-Microsoft.Usage#CA2232;-Microsoft.Usage#CA2233;-Microsoft.Usage#CA2234;-Microsoft.Usage#CA2235;-Microsoft.Usage#CA2236;-Microsoft.Usage#CA2237;-Microsoft.Usage#CA2238;-Microsoft.Usage#CA2239;-Microsoft.Usage#CA2240;-Microsoft.Usage#CA2242;-Microsoft.Usage#CA2243</CodeAnalysisRules>
+    <RunSourceAnalysis>False</RunSourceAnalysis>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <SignAssembly>False</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>x86</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <StartAction>Project</StartAction>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>Full</DebugType>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>False</DebugSymbols>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DebugType>None</DebugType>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>True</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <PlatformTarget>x86</PlatformTarget>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>False</Optimize>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DebugType>Full</DebugType>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugSymbols>False</DebugSymbols>
+    <Optimize>True</Optimize>
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+    <DebugType>None</DebugType>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="encog-core-cs">
+      <HintPath>..\..\..\Source Code of projects\Neurons Source\Encog\C#\3.1.0\encog-core-cs.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+    </Reference>
+    <Reference Include="System.Core">
+    </Reference>
+    <Reference Include="System.Data">
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+    </Reference>
+    <Reference Include="System.Drawing">
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+    </Reference>
+    <Reference Include="ZedGraph">
+      <HintPath>..\..\..\Source Code of projects\ZedGraph\zedgraph_dll_v5.1.5\ZedGraph.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="LSM\NeuronArch\McCulloch_Pitts.cs" />
+    <Compile Include="LSM\ReadOut_Unit\Tempotron.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Cache.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\GaussianTransform.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\IRangeTransform.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Kernel.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Model.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Node.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Parameter.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\ParameterSelection.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\PerformanceEvaluator.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\PrecomputedKernel.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Prediction.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Problem.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\RangeTransform.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Scaling.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Solver.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\SupportClass.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\SVMExtensions.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\TemporaryCulture.cs" />
+    <Compile Include="LSM\ReadOut_Unit\SVM\Training.cs" />
+    <Compile Include="LSM\Utils_Functions\Transformation_On_Inputs.cs" />
+    <Compile Include="LSM\Utils_Functions\Combinator.cs" />
+    <Compile Include="LSM\Liquid\LSM.cs" />
+    <Compile Include="LSM\Liquid\NeuronNetwork.cs" />
+    <Compile Include="LSM\Ploting\plotGraph.cs" />
+    <Compile Include="LSM\Ploting\plotGraph.Designer.cs">
+      <DependentUpon>plotGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LSM\Ploting\plotxy.cs" />
+    <Compile Include="LSM\Ploting\plotxy.Designer.cs">
+      <DependentUpon>plotxy.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LSM\Utils_Functions\Matrix_Arithmetic.cs" />
+    <Compile Include="LSM\Utils_Functions\randomIntArr.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="LSM\NeuronArch\Neuron.cs" />
+    <Compile Include="LSM\NeuronArch\IzakNeuron.cs" />
+    <Compile Include="LSM\NeuronArch\LIFmodle2.cs" />
+    <Compile Include="LSM\NeuronArch\LIFNeuron.cs" />
+    <Compile Include="LSM\NeuronArch\Unit.cs" />
+    <Compile Include="LSM\ReadOut_Unit\ReadOut_Detector.cs" />
+    <Compile Include="LSM\ReadOut_Unit\ReadOut_Perceptron.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\DamageInLSM\DamageLSM.cs" />
+    <Compile Include="Tests\DamageInLSM\Inputs.cs" />
+    <Compile Include="Tests\DamageInLSM\Reports.cs" />
+    <Compile Include="Tests\globalParam.cs" />
+    <Compile Include="Tests\Sound\TIMIT.cs" />
+    <Compile Include="Tests\TrentoKore\Comparator.cs" />
+    <Compile Include="Tests\TrentoKore\DataSet.cs" />
+    <Compile Include="Tests\TrentoKore\KoreLSM.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="LSM\" />
+    <Folder Include="LSM\" />
+    <Folder Include="LSM\" />
+    <Folder Include="LSM\" />
+    <Folder Include="LSM\" />
+    <Folder Include="LSM\ReadOut_Unit\SVM" />
+    <Folder Include="Tests\" />
+    <Folder Include="Tests\" />
+    <Folder Include="Tests\" />
+    <Folder Include="Tests\" />
+    <Folder Include="Tests\TrentoKore" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Liquid Detector.cd" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <ChangeLogPolicy inheritsSet="Mono" />
+          <TextStylePolicy inheritsSet="Mono" inheritsScope="text/plain" scope="text/x-csharp" />
+          <CSharpFormattingPolicy inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
+          <TextStylePolicy inheritsSet="Mono" inheritsScope="text/plain" scope="text/plain" />
+          <TextStylePolicy inheritsSet="Mono" inheritsScope="text/plain" scope="application/config+xml" />
+          <XmlFormattingPolicy inheritsSet="Mono" inheritsScope="application/xml" scope="application/config+xml" />
+          <TextStylePolicy inheritsSet="Mono" inheritsScope="text/plain" scope="application/xml" />
+          <XmlFormattingPolicy inheritsSet="Mono" inheritsScope="application/xml" scope="application/xml" />
+          <StandardHeader inheritsSet="MITX11License" />
+          <VersionControlPolicy inheritsSet="Mono" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>

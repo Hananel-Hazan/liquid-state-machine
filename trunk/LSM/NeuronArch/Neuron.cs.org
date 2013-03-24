@@ -1,0 +1,658 @@
+﻿using System;
+
+namespace Neurons
+{
+	/// <summary>
+	/// Description of Class1.
+	/// </summary>
+	public class Neuron
+	{
+		//----------------------------------------------------------------
+		//                    init ver
+		//----------------------------------------------------------------
+		NeuronArch.Unit Nunit;
+		public double ExternalIntput;
+		public int posiORneg;
+		public int Input_OR_Output;
+		
+		public Neuron[] OutputList;
+		int[] output_weightIndex;
+		public double[] synapseStrength;
+		public int[] synapseIndex;
+
+		double[] Input_weights;
+		double[] iniInput_weights;
+		int[] Inputs_delays;
+		public Neuron[] inputFromNeuronID;
+		
+		int[,] FiringTime;
+		int[] STDP_Q;
+		int[] STDPmethodUpdate;
+		public int maxSTDP,STDPsize,Ignor_STDP_InvSTDP;
+
+		int[] delayQu;
+		double[] voltInputQu;
+		int numberInQ,emptyQ,numberOfInputNeurons;
+		
+		public int name;
+		public int mode;
+		public double FiringHz,INT_StimulyHz,EX_StimulyHz;
+		public int FireCount,count_INT_stimuly_in_frame,count_EX_stimuly_in_frame,fram_counter,
+		Sum_FireCount,Sum_count_INT_stimuly_in_frame,Sum_count_EX_stimuly_in_frame,Changes=0;
+		int readyQ;
+		Utils_Functions.Matrix_Arithmetic Arr;
+		
+		public double RandomElemnt_double;
+		public int Slideing_Threshold;
+		
+		//----------------------------------------------------------------
+
+		public Neuron(int model, int name,ref globalParam Param)
+		{
+			// model: 1=LIF , 2=Izhikevich , 3=LIF model 2 , 4=McCulloch_Pitts
+			switch (model)
+			{
+					case 1: Nunit = new NeuronArch.LIFNeuron(ref Param); 		break;
+					case 2: Nunit = new NeuronArch.IzakNeuron(ref Param); 		break;
+					case 3: Nunit = new NeuronArch.LIFmodle2(ref Param); 		break;
+					case 4: Nunit = new NeuronArch.McCulloch_Pitts(ref Param); 	break;
+			}
+			this.synapseStrength = new double[1]{1};
+			this.OutputList = new Neuron[0];
+			this.output_weightIndex = new int[0];
+			this.Input_weights = new Double[0];
+			this.iniInput_weights = new Double[0];
+			this.Inputs_delays = new int[0];
+			this.inputFromNeuronID = new Neuron[0];
+			this.name = name;
+			this.FiringTime	= new int[0,0];
+			this.STDP_Q = new int[0];
+			this.STDPmethodUpdate = new int[0];  // 1 = positive , 2 = negative , 3 = dont update
+			Arr = new Utils_Functions.Matrix_Arithmetic();
+			this.RandomElemnt_double = 0;
+			this.Slideing_Threshold = 0; // defoult
+			this.STDPsize = 1+(int) Math.Round(Param.Neuron_Firing_Rate_Max);
+			this.maxSTDP = Param.STDPwindow[1];
+			this.reset(ref Param);
+			
+		}//----------------------------------------------------------------
+		
+		
+		public void reset(ref globalParam Param)
+		{
+			this.delayQu = new int[0];
+			this.voltInputQu = new double[0];
+			this.numberInQ = 0;
+			this.emptyQ=0;
+			
+			this.ExternalIntput = 0;
+			this.mode = 1;
+			this.Input_weights = (double[]) this.iniInput_weights.Clone();
+			
+			this.FiringHz = 0.0;
+			this.FireCount = 0;
+			this.readyQ=0;
+			this.count_EX_stimuly_in_frame = 0;
+			this.count_INT_stimuly_in_frame = 0;
+			this.Sum_FireCount = 0;
+			this.Sum_count_INT_stimuly_in_frame = 0;
+			this.Sum_count_EX_stimuly_in_frame = 0;
+			this.fram_counter=0;
+			this.INT_StimulyHz = 0.0;
+			this.EX_StimulyHz = 0.0;
+			
+			this.synapseIndex = new int[this.OutputList.Length];
+			for (int i = 0; i < this.OutputList.Length; i++)
+				this.synapseIndex[i] = Param.rnd.Next(0,this.synapseStrength.Length);
+			
+			int x=this.FiringTime.GetLength(0),y=this.FiringTime.GetLength(1);
+			for (int j = 0; j < x; j++){
+				for (int i = 0; i < y; i++)
+					this.FiringTime[j,i] = maxSTDP;
+				this.STDP_Q[j] = 0;
+			}
+			
+			Nunit.reset(ref Param);
+		}//----------------------------------------------------------------
+		public bool step(int runningTime, ref globalParam Param)
+		{
+			int[] temp= new int[]{0,0,0};
+			return step(1,runningTime,ref temp, ref Param);
+		}
+		
+		public bool step(int STDP_LTP_LTD,int runningTime,ref int[] flag, ref globalParam Param)
+		{
+			double internalInput=0,nu;
+			switch (this.mode)
+			{
+				case 1:  // Normal
+					internalInput = this.popInputQ();
+					break;
+					
+				case 2: // Noise Generator
+					this.ExternalIntput=Param.Int_Neuron_Spike;
+					// and continue Normaly to case 1
+					goto case 1;
+
+				case 3: // Dead unit
+					nu=this.popInputQ();
+					this.ExternalIntput = 0;
+					internalInput = 0;
+					this.Nunit.V = Param.initV;
+					break;
+			}
+			
+			if (this.ExternalIntput!=0)
+				this.count_EX_stimuly_in_frame++;
+			if (internalInput!=0)
+				this.count_INT_stimuly_in_frame++;
+			
+			double returnV=0;
+			bool Vout = Nunit.step(ref returnV,internalInput, this.ExternalIntput);
+			if (Vout==false) {
+				// NO FIRE
+				for (int i = 0; i < this.synapseIndex.Length; i++)
+					if (this.synapseIndex[i]>0) this.synapseIndex[i]--;
+				
+				if (this.Slideing_Threshold==1){
+					if (this.FiringHz<=Param.Neuron_Recommended_Firing_Rate_Min){
+						double temp = this.getThreshold_Temporarly()-RandomElemnt_double;
+						this.setThreshold_Temporarly(temp);
+						flag[2]++;
+					}
+				}
+				
+			}else{
+				// Fire to whom neuron is conneced.
+				this.OutputToAllConnectedUnits(returnV,Param.STDPwindow[1]);
+				this.FireCount++;
+				
+				int[] temp = new int[]{0,0};
+				if ((Param.Active_STDP_rule==1)){
+					if (Ignor_STDP_InvSTDP==0){
+					}
+					else if (Ignor_STDP_InvSTDP==1)
+						temp = this.STDP(ref Param,STDP_LTP_LTD);
+					else if (Ignor_STDP_InvSTDP==2)
+						temp = this.inverse_STDP(ref Param,STDP_LTP_LTD);
+				}
+				flag[0]+=temp[0];
+				flag[1]+=temp[1];
+				
+				if (this.Slideing_Threshold==1){
+					double tempT = this.getThreshold_Temporarly();
+					if (this.FiringHz>Param.Neuron_Recommended_Firing_Rate_Max){
+						this.setThreshold_Temporarly(tempT+RandomElemnt_double);
+						flag[2]++;
+					}else if (tempT < getThreshold_Permanent()){
+						this.setThreshold_Temporarly(getThreshold_Permanent());
+						flag[2]++;
+					}
+				}
+			}
+			
+			if ((runningTime>0)&&(runningTime%Param.LSM_1sec_interval==0)) {
+				fram_counter++;
+				
+				this.Sum_FireCount +=this.FireCount;
+				this.FiringHz = Math.Round((Sum_FireCount/fram_counter+0.0),3);
+				
+				this.Sum_count_EX_stimuly_in_frame+=this.count_EX_stimuly_in_frame;
+				this.EX_StimulyHz = Math.Round((this.Sum_count_EX_stimuly_in_frame/fram_counter+0.0),3);
+				this.count_EX_stimuly_in_frame = 0;
+				
+				this.Sum_count_INT_stimuly_in_frame+=this.count_INT_stimuly_in_frame;
+				this.INT_StimulyHz = Math.Round((this.Sum_count_INT_stimuly_in_frame/fram_counter+0.0),3);
+				this.count_INT_stimuly_in_frame = 0;
+				
+				this.FireCount = 0;
+				this.cleanupQ();
+			}
+			
+			this.mode = 1;
+			this.ExternalIntput = 0;
+			return Vout;
+		}//----------------------------------------------------------------
+		
+		public double returnV()
+		{
+			return (this.Nunit.V);
+		}//----------------------------------------------------------------
+		
+		public Neuron returnRef()
+		{
+			return (this);
+		}//----------------------------------------------------------------
+		
+		public void OutputToAllConnectedUnits(double volts,int maxSTDP)
+		{
+			Neuron source = this;
+			for (int i = 0; i < this.OutputList.Length; i++){
+				if (this.synapseStrength[this.synapseIndex[i]]>0){
+					(this.OutputList[i]).EnterToInputQu(ref source, (this.synapseStrength[this.synapseIndex[i]] * volts),this.output_weightIndex[i]);
+					this.synapseIndex[i]++;
+					if (this.synapseIndex[i]==this.synapseStrength.Length) this.synapseIndex[i]=0;
+				}
+			}
+		}//----------------------------------------------------------------
+		
+		public void addNueronToOutputList(ref Neuron source,int index,ref globalParam Param)
+		{
+			int ArraySize = this.OutputList.Length;
+			int ArraySizeP = ArraySize+1;
+			
+			Array.Resize(ref this.OutputList,ArraySizeP);
+			Array.Resize(ref this.output_weightIndex,ArraySizeP);
+			Array.Resize(ref this.synapseIndex,ArraySizeP);
+			
+			this.OutputList[ArraySize] = source;
+			this.output_weightIndex[ArraySize] = index;
+			this.synapseIndex[ArraySize] = Param.rnd.Next(0,this.synapseStrength.Length);
+			
+		}//----------------------------------------------------------------
+		
+		public int addNueronToInputList(ref Neuron source, double weight, int delay, int updateMethod)
+		{
+			numberOfInputNeurons++;
+			
+			int ArraySize = this.inputFromNeuronID.Length;
+			int ArraySizeP = ArraySize+1;
+			
+			Array.Resize(ref inputFromNeuronID,ArraySizeP);
+			Array.Resize(ref iniInput_weights,ArraySizeP);
+			Array.Resize(ref Inputs_delays,ArraySizeP);
+			Array.Resize(ref STDPmethodUpdate,ArraySizeP);
+			Array.Resize(ref this.STDP_Q,ArraySizeP);
+			
+			this.FiringTime = new int[ArraySizeP,STDPsize+1];
+			for (int j = 0; j < ArraySizeP ; j++)
+				for (int i = 0; i < STDPsize+1; i++)
+					this.FiringTime[j,i] = maxSTDP;
+			
+			
+			this.inputFromNeuronID[ArraySize] = source;
+			this.iniInput_weights[ArraySize] = weight;
+			this.Inputs_delays[ArraySize] = delay;
+			this.STDPmethodUpdate[ArraySize] = updateMethod;
+			this.STDP_Q[ArraySize] = 0 ;
+			
+			return (ArraySize);
+		}//----------------------------------------------------------------
+		
+		public void EnterToInputQu(ref Neuron source, double volts,int index)
+		{
+			double tempOutput = this.Input_weights[index] * volts;
+			if (tempOutput>0){
+				int size = numberInQ;
+				if (this.emptyQ>0){
+					for (int i = 0; i < size ; i++)
+						if (this.delayQu[i]==1) {size = i; break;}
+					this.emptyQ--;
+				}else{
+					numberInQ++;
+					Array.Resize(ref this.delayQu,numberInQ);
+					Array.Resize(ref this.voltInputQu,numberInQ);
+				}
+				this.delayQu[size] = this.Inputs_delays[index];
+				this.voltInputQu[size] = tempOutput;
+				for (int i = STDP_Q[index] ; i > 0  ; i--) {
+					this.FiringTime[index,i] =  this.FiringTime[index,i-1];
+				}
+				this.FiringTime[index,0] = this.Inputs_delays[index];
+				this.STDP_Q[index]++;
+			}
+		}//----------------------------------------------------------------
+		
+		public void cleanupQ(){
+			if ((this.emptyQ>20)&&(this.delayQu.Length>50)){
+				int count=0,zeros=0,size = this.delayQu.Length - this.emptyQ;
+				int[] newQ = new int[size];
+				double[] newVQ = new double[size];
+				for (int i = 0; i < this.delayQu.Length; i++) {
+					if (this.delayQu[i]<0){
+						newQ[count] = this.delayQu[i];
+						newVQ[count] = this.voltInputQu[i];
+						count++;
+					}
+					else if (this.delayQu[i]==0) zeros++;
+				}
+				this.delayQu = newQ;
+				this.voltInputQu = newVQ;
+				this.emptyQ=0;
+				this.numberInQ = size - zeros;
+			}
+		}//----------------------------------------------------------------
+		
+		
+		public void decInputQ(int MaxSTDP,double resistance){
+			this.readyQ=0;
+			if (this.numberInQ>0){
+				for (int i = 0; i < this.numberInQ ; i++) {
+					if (this.delayQu[i]<0){
+						this.delayQu[i]++;
+						this.voltInputQu[i]/=resistance;
+					}
+					else if (this.delayQu[i]==0)
+					{
+						this.readyQ++;
+						this.numberInQ--;
+					}
+				}
+			}
+			
+			
+			int x = this.FiringTime.GetLength(0);
+			for (int j = 0; j < x ; j++){
+				int temp = this.STDP_Q[j];
+				this.STDP_Q[j] = 0;
+				for (int i = 0; i < temp ; i++){
+					this.FiringTime[j,i]++;
+					if (this.FiringTime[j,i]<maxSTDP)
+						this.STDP_Q[j]++;
+				}
+			}
+			
+			
+			
+//			int x = this.FiringTime.GetLength(0) , y = this.FiringTime.GetLength(1);
+//			for (int j = 0; j < x ; j++){
+//				if (this.STDP_Q[j]>0){
+//					int temp = this.STDP_Q[j];
+//					this.STDP_Q[j]=0;
+//					for (int i = 0; i < y ; i++){
+//						if (this.FiringTime[j,i] < MaxSTDP){
+//							if (this.STDP_Q[j]<i){
+//								this.FiringTime[j,this.STDP_Q[j]] = this.FiringTime[j,i]+1;
+//								this.FiringTime[j,i] = MaxSTDP;
+//								this.STDP_Q[j]++;
+//								temp--;
+//							}else{
+//								this.FiringTime[j,i]++;
+//								this.STDP_Q[j]++;
+//								temp--;
+//							}
+//						}
+//					}
+//					if (temp==0) break;
+//				}
+//			}
+		}//----------------------------------------------------------------
+		
+		public double popInputQ()
+		{
+			double input = 0;
+
+			if (this.readyQ>0)
+			{
+				for (int i = 0; i < this.delayQu.Length; i++){
+					if (this.delayQu[i] == 0){
+						input += this.voltInputQu[i];
+						this.voltInputQu[i] = 0;
+						this.delayQu[i]=1;
+						this.emptyQ++;
+					}
+				}
+			}
+			return input;
+		}//----------------------------------------------------------------
+
+		public void setThreshold_Permanent(double NewT){
+			this.Nunit.initTherashold = NewT;
+		}//----------------------------------------------------------------
+		
+		public double getThreshold_Permanent(){
+			return Nunit.initTherashold;
+		}//----------------------------------------------------------------
+		
+		public void setThreshold_Temporarly(double NewT){
+			this.Nunit.therashold = NewT;
+		}//----------------------------------------------------------------
+		
+		public double getThreshold_Temporarly(){
+			return Nunit.therashold;
+		}//----------------------------------------------------------------
+		
+		public double[] Save_State(){
+//			this.setThreshold_Permanent(this.getThreshold_Temporarly());
+			this.iniInput_weights = (double[]) this.Input_weights.Clone();
+			return this.iniInput_weights;
+		}//----------------------------------------------------------------
+		
+		public int[] STDP(ref globalParam Param,int STDP_LTP_LTD){
+			/// Method:
+			/// 1 = Learn STDP (LTP + LTD)
+			/// 2 = LTP only
+			/// 3 = LTD only
+			/// 
+			/// STDPmethodUpdate:
+			///  1 = positive neuron
+			///  2 = negative neuron
+			///  3 = ignore this neuron
+			
+			int[] changes = new int[]{0,0};
+			int ignore=Param.STDPwindow[1];
+			double PreChange = Param.STDPMaxChange[0] , PostChange = Param.STDPMaxChange[1],
+			PreChangeNeg = PreChange*0.1 ,  PostChangeNeg=PostChange*0.1;
+			double MaxPre = Param.STDPwindow[1], MaxPost = -1 * Param.STDPwindow[0];
+			
+			int neurons = this.FiringTime.GetLength(0) , time = this.FiringTime.GetLength(1);
+			for (int j = 0; j < neurons ; j++){
+				int counter = this.STDP_Q[j];
+				if (counter==0) continue;
+				for (int i = 0; i < time ; i++) {
+					if (counter==0) break;
+					if (STDPmethodUpdate[j]==3) {counter--; continue;}
+					double currentSTDP = this.FiringTime[j,i];
+					double change;
+					if ((currentSTDP>MaxPost)||(currentSTDP<MaxPre)) counter--;
+					//------STDP
+					if ((currentSTDP>0)&&(currentSTDP<=MaxPre)&&((STDP_LTP_LTD==1)||(STDP_LTP_LTD==2))){ // Pre synaptic ==> the numbers shuld be bigger then zero
+						changes[0]++;
+//						this.FiringTime[j,i] = ignore;
+						change = (currentSTDP/MaxPre);
+						if (this.STDPmethodUpdate[j]==2){ // from Negative Neuron
+							this.Input_weights[j] -= PreChangeNeg * change;
+							if ((this.Input_weights[j]<-1)||(this.getThreshold_Permanent()<=Param.initV)){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=-0.99;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()-(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}else{  // from Positive Neuron
+							this.Input_weights[j] += PreChange * change;
+							if ((this.Input_weights[j]>1)||(this.getThreshold_Permanent()<=Param.initV)){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=0.99;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()-(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}
+					}else if ((currentSTDP<0)&&(currentSTDP>=MaxPost)&&((STDP_LTP_LTD==1)||(STDP_LTP_LTD==3))){ // Post synaptic ==> the numbers shuld be smaller then zero
+						changes[1]++;
+						change = (currentSTDP/MaxPost);
+//						this.FiringTime[j,i] = ignore;
+						if (this.STDPmethodUpdate[j]==2){ // from Negative Neuron
+							this.Input_weights[j] += PostChangeNeg * change;
+							if (this.Input_weights[j]>0){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=-0.01;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()+(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}else{ // from Positive Neuron
+							this.Input_weights[j] -= PostChange * change;
+							if (this.Input_weights[j]<0){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=0.01;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()+(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}
+					}
+					//---- end of STDP
+
+				}
+			}
+			return changes;
+		}//----------------------------------------------------------------
+		
+		public int[] inverse_STDP(ref globalParam Param,int STDP_LTP_LTD){
+			/// Method:
+			/// 1 = Learn STDP (LTP + LTD)
+			/// 2 = LTP only
+			/// 3 = LTD only
+			/// 
+			/// STDPmethodUpdate:
+			///  1 = positive neuron
+			///  2 = negative neuron
+			///  3 = ignore this neuron
+			
+			int[] changes = new int[]{0,0};
+			int ignore=Param.STDPwindow[1];
+			double PreChange = Param.STDPMaxChange[0] , PostChange = Param.STDPMaxChange[1],
+			PreChangeNeg = PreChange*0.1 ,  PostChangeNeg=PostChange*0.1;
+			double MaxPre = Param.STDPwindow[1], MaxPost = -1 * Param.STDPwindow[0];
+			
+			int neurons = this.FiringTime.GetLength(0) , time = this.FiringTime.GetLength(1);
+			for (int j = 0; j < neurons ; j++){
+				int counter = this.STDP_Q[j];
+				if (counter==0) continue;
+				for (int i = 0; i < time ; i++) {
+					if (counter==0) break;
+					if (STDPmethodUpdate[j]==3) {counter--; continue;}
+					double currentSTDP = this.FiringTime[j,i];
+					double change;
+					if ((currentSTDP>MaxPost)||(currentSTDP<MaxPre)) counter--;
+					//------STDP
+					if ((currentSTDP>0)&&(currentSTDP<=MaxPre)&&((STDP_LTP_LTD==1)||(STDP_LTP_LTD==2))){ // Pre synaptic ==> the numbers shuld be bigger then zero
+						changes[1]++;
+//						this.FiringTime[j,i] = ignore;
+						change = (currentSTDP/MaxPre);
+						if (this.STDPmethodUpdate[j]==2){ // from Negative Neuron
+							this.Input_weights[j] += PreChangeNeg * change;
+							if ((this.Input_weights[j]>0)||(this.getThreshold_Permanent()<=Param.initV)){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=-0.01;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()-(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}else{  // from Positive Neuron
+							this.Input_weights[j] -= PreChange * change;
+							if ((this.Input_weights[j]<0)||(this.getThreshold_Permanent()<=Param.initV)){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=0.01;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()-(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}
+					}else if ((currentSTDP<0)&&(currentSTDP>=MaxPost)&&((STDP_LTP_LTD==1)||(STDP_LTP_LTD==3))){ // Post synaptic ==> the numbers shuld be smaller then zero
+						changes[0]++;
+						change = (currentSTDP/MaxPost);
+//						this.FiringTime[j,i] = ignore;
+						if (this.STDPmethodUpdate[j]==2){ // from Negative Neuron
+							this.Input_weights[j] -= PostChangeNeg * change;
+							if (this.Input_weights[j]<-1){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=-0.99;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()+(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}else{ // from Positive Neuron
+							this.Input_weights[j] += PostChange * change;
+							if (this.Input_weights[j]>1){
+								if (this.Input_OR_Output==1)
+									this.Input_weights[j]=0.99;
+								else{
+									counter=0;
+									for (int n = 0; n < neurons ; n++){
+										if (this.STDPmethodUpdate[n]==1)
+											this.Input_weights[n] = (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_PosN,Param.LSM_Max_Init_Weight_PosN));
+										else
+											this.Input_weights[n] = -1 * (Param.rndA.NextDouble(ref Param,Param.LSM_Min_Init_Weight_NegN,Param.LSM_Max_Init_Weight_NegN));
+									}
+									this.setThreshold_Permanent(this.getThreshold_Permanent()+(1+this.RandomElemnt_double));
+									this.setThreshold_Temporarly(this.getThreshold_Permanent());
+									break;
+								}
+							}
+						}
+					}
+					//---- end of STDP
+
+				}
+			}
+			return changes;
+		}//----------------------------------------------------------------
+		
+	} // End Class
+}
