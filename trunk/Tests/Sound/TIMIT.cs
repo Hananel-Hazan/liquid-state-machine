@@ -142,7 +142,7 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 						// Training //
 						double[] LastReturnError;
 						Console.WriteLine("Trainning Readout Units");
-						LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Learn,0);
+						LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Test, ref SoundData_to_Learn,0);
 						
 						
 						// Testing //

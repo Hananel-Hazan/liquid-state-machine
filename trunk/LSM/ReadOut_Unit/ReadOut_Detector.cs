@@ -808,7 +808,7 @@ public class ReadOut_Detector
 		}
 		
 		if (((this.model>1)&&(this.model<7))||(this.model==9))
-			if ((this.ReadOut4EveryWindow == 1)&&(this.ReadOut4EveryWindow == 1)){
+			if (this.ReadOut4EveryWindow == 1){
 			output[0] /= count;
 		}
 		

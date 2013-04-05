@@ -212,16 +212,17 @@ namespace Neurons
 			LTDchange = Param.neuronParam.STDPMaxChange[1];
 			LTDchangeLittle = LTDchange/10;
 			LTPwin = Param.neuronParam.STDPwindow[0];
-			LTDwin = Param.neuronParam.STDPwindow[1];
+			LTDwin = Param.neuronParam.STDPwindow[1]-1;
 			LTPcounter = 0;
 			LTDcounter = 0;
 			firedBeforeXciycles = 0;
 			LTP = new double[this.Input_weights.Length];
 			LTD = new double[this.Input_weights.Length];
 			LTDwindows = new double[LTDwin+1];
-			for (int i = LTDwin ; i > -1 ; i--) {
-				LTDwindows[i]=1 - (i+0.0)/LTDwin;
-			}
+			if (LTDwin>0)
+				for (int i = LTDwin ; i >= 0 ; i--)
+					LTDwindows[i]=1 - (i+0.0)/LTDwin;
+			
 			LTPwindows = new double[LTPwin];
 			for (int i = 0; i < LTPwin; i++) {
 				LTPwindows[i]= (LTPwin-(i+0.0))/LTPwin;
@@ -274,12 +275,17 @@ namespace Neurons
 //				// STDP - V.2 - START
 				if (STDP == 1 ){
 					for (int i = 0; i < InputNeuronsList.Length; i++) {
-						if ((InputNeuronsList[i].firedBeforeXciycles > 0) &&
+						if ((InputNeuronsList[i].firedBeforeXciycles >= 0) &&
 						    (InputNeuronsList[i].firedBeforeXciycles<LTPwin)){
 //							LTP[i] += LTPwindows[InputNeuronsList[i].firedBeforeXciycles]/LTPwin;
 							increase_weight(i, ((LTPwindows[InputNeuronsList[i].firedBeforeXciycles]/LTPwin)* LTPchange) );
 							flag[1]++;  // LTP
 						}
+//						if (InputNeuronsList[i].Nunit.internal_Refactory){
+//							increase_weight(i, (LTPchange) );
+//							flag[1]++;  // LTP
+//						}
+
 					}
 				}
 				// STDP - V.2 - END
@@ -301,7 +307,7 @@ namespace Neurons
 						this.Nunit.therashold += RandomElemnt_double;
 //					else
 //						this.Nunit.therashold = this.Nunit.initTherashold;
-					flag[2]++;
+						flag[2]++;
 					}
 				}
 			}else{
@@ -315,8 +321,8 @@ namespace Neurons
 				// Sliding Threshold v2
 				if (this.Slideing_Threshold==1){
 					if (this.Number_Fireing_in_Second<Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min){
-					this.Nunit.therashold -= RandomElemnt_double;
-					flag[2]++;
+						this.Nunit.therashold -= RandomElemnt_double;
+						flag[2]++;
 					}
 				}
 				
@@ -334,7 +340,7 @@ namespace Neurons
 			}
 			
 			
-			if (runningTime>0 && runningTime%Param.detector.LSM_1sec_interval==0){
+//			if (runningTime>0 && runningTime%Param.detector.LSM_1sec_interval==0){
 
 //				// STDP - V.1 - START
 //				if (STDP == 1 ){
@@ -357,7 +363,7 @@ namespace Neurons
 //					}
 //				}
 //				// STDP - V.1 - END
-				
+			
 //				// Sliding Threshold base on frequncy
 //				if (this.Slideing_Threshold==1){
 //
@@ -371,8 +377,8 @@ namespace Neurons
 //						flag[2]++;
 //					}
 //				}
-				
-			}
+			
+//			}
 			
 			
 			flag[1] += LTPcounter;  // LTP
@@ -402,16 +408,24 @@ namespace Neurons
 		public void EnterToInputQ(int place,double Volt)
 		{
 			// STDP - V.2 - START
+
+//			if ((STDP==1)&&(this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin)){
+//			//				LTD[place] +=  LTDwindows[this.firedBeforeXciycles];
+//				decrease_weight(place, (LTDwindows[this.firedBeforeXciycles] * LTDchange));
+//				LTDcounter++;
+//			}
+
 			
-			if (STDP==1){
-				
-				if ((Nunit.internal_Refactory)&&(this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin)){
+			if ((Nunit.internal_Refactory)&&(STDP==1)&&(LTDwindows.Length>0)){
+
+				if ((this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin))
 					decrease_weight(place, (LTDwindows[this.firedBeforeXciycles] * LTDchange));
-					LTDcounter++;
-				}
+				else
+					decrease_weight(place, (LTDwindows[LTDwin] * LTDchange));
+				LTDcounter++;
 			}
 			
-//			if ((STDP==1)&&((Nunit.internal_Refactory)||((this.firedBeforeXciycles>0)&&(this.firedBeforeXciycles<=LTDwin)))){
+//			if ((STDP==1)&&((Nunit.internal_Refactory)||((this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin)))){
 //			//				LTD[place] +=  LTDwindows[this.firedBeforeXciycles];
 //				decrease_weight(place, (LTDwindows[this.firedBeforeXciycles] * LTDchange));
 //				LTDcounter++;
