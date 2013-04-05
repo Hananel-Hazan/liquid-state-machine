@@ -332,11 +332,12 @@ public class NeuronParametes
 		neu.Input_OR_Output=2;
 		neu.reset(ref Param);
 		neu.Slideing_Threshold=this.Slideing_Threshold;
-		int factor = 1000;
+		int factor = 10000;
 		
 		one_Second *=factor;
 		int counterA=0;
 		Steps_Between_Two_Spikes=0;
+		Steps_Between_Two_Spikes_In_Silence = 0;
 		
 		bool flip = false;
 		Neuron_Firing_Rate_Max = 0 ;
@@ -370,7 +371,7 @@ public class NeuronParametes
 		
 		counterA=0;
 		int counterB = 0;
-		if (Param.neuronParam.Slideing_Threshold>0){
+		if ((Param.neuronParam.Slideing_Threshold>0)&&(Random_Factor_Sliding_Treshold>0)){
 			neu.FullReset(ref Param);
 			neu.Slideing_Threshold = Param.neuronParam.Slideing_Threshold;
 			plot = new double[one_Second];
@@ -1181,6 +1182,8 @@ public class globalParam
 		globalParam deme = this.copy();
 		neuronParam.initialization(ref deme);
 		networkParam.initialization(ref recorentNet,ref rnd,neuronParam.Neuron_Model);
+		if (input2liquid.LSM_Ratio_Of_Input_Interval[1]<0)
+			input2liquid.LSM_Ratio_Of_Input_Interval[1] = neuronParam.Steps_Between_Two_Spikes;
 		
 	}//----------------------------------------------------------------------------------
 	

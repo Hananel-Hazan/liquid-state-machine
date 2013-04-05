@@ -681,7 +681,7 @@ namespace Liquid
 		}//--------------------------------------------------------------------
 		
 		
-		public double[] Learn_Multiple_Targets(ref globalParam Param, ref globalParam.Data[] LearnData,int print)
+		public double[] Learn_Multiple_Targets(ref globalParam Param, ref globalParam.Data[] LearnData, ref globalParam.Data[] TestData,int print)
 		{
 			
 			groupNames = new int[1]{0};
@@ -733,6 +733,13 @@ namespace Liquid
 						LearnData[i].Target = new double[]{1};
 				}
 				
+//				for (int i = 0; i < TestData.Length; i++) {
+//					if (TestData[i].Tag==groupNames[n])
+//						TestData[i].Target = new double[]{-1};
+//					else
+//						TestData[i].Target = new double[]{1};
+//				}
+//				
 				output[n] = this.Learn(ref Param,ref LearnData,print,repetition, n);
 				
 				NN[n].CleanCollectedData();
