@@ -331,10 +331,12 @@ public class NeuronParametes
 		neu.posiORneg=1;
 		neu.Input_OR_Output=2;
 		neu.reset(ref Param);
-		neu.Slideing_Threshold=this.Slideing_Threshold;
-		int factor = 10000;
+		neu.Slideing_Threshold=0;
+		if (this.Slideing_Threshold==1){
+			neu.Nunit.initTherashold = this.initV+10;
+		}
+		neu.reset(ref Param);
 		
-		one_Second *=factor;
 		int counterA=0;
 		Steps_Between_Two_Spikes=0;
 		Steps_Between_Two_Spikes_In_Silence = 0;
@@ -360,9 +362,8 @@ public class NeuronParametes
 				counterA++;
 			}
 		}
-		Steps_Between_Two_Spikes =  2 + (int) Math.Round(((double)Steps_Between_Two_Spikes/Neuron_Firing_Rate_Max),0);
-		Neuron_Firing_Rate_Max /= Param.detector.LSM_1sec_interval;
 		if (Neuron_Firing_Rate_Max==0) Console.WriteLine("!!! Neuron Initilization = zero !!!");
+		Steps_Between_Two_Spikes =  2 + (int) Math.Round(((double)Steps_Between_Two_Spikes/(Neuron_Firing_Rate_Max-1)),0);
 		Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max = 0.5 * Neuron_Firing_Rate_Max;
 		Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min = Math.Min(1,0.01 * Neuron_Firing_Rate_Max);
 		Neuron_STDP_Recommended_Firing_Rate_Max = 0.6 * Neuron_Firing_Rate_Max;
@@ -371,14 +372,16 @@ public class NeuronParametes
 		
 		counterA=0;
 		int counterB = 0;
-		if ((Param.neuronParam.Slideing_Threshold>0)&&(Random_Factor_Sliding_Treshold>0)){
-			neu.FullReset(ref Param);
+		Steps_Between_Two_Spikes_In_Silence = -1;
+		if ((Slideing_Threshold>0)&&(Random_Factor_Sliding_Treshold>0)){
 			neu.Slideing_Threshold = Param.neuronParam.Slideing_Threshold;
-			plot = new double[one_Second];
-			for (int i = 0; i < one_Second ; i++) {
+			neu.Nunit.initTherashold = Neuron_Threshold;
+			neu.FullReset(ref Param);
+//			plot = new double[one_Second];
+			do{
 				int[] dontcare = new int[3];
-				bool spike = neu.step(i,ref dontcare,ref Param);
-				plot[i] = neu.Nunit.V;
+				bool spike = neu.step(1,ref dontcare,ref Param);
+//				plot[i] = neu.Nunit.V;
 				if (spike){
 					counterB++;
 					flip=true;
@@ -391,7 +394,7 @@ public class NeuronParametes
 				}else{
 					counterA++;
 				}
-			}
+			}while(counterB<=10);
 			
 			Steps_Between_Two_Spikes_In_Silence = 2 + (int) Math.Round(((double)Steps_Between_Two_Spikes_In_Silence/counterB),0);
 		}

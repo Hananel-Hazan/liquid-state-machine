@@ -143,13 +143,13 @@ namespace Liquid_Detector.Tests.DamageLSM
 					Net.Dump_Network_Weights(@tempFileName3);
 					double[] LastReturnError;
 					LastReturnError = Net.Learn(ref Param,ref Vector.InputVec, 0 ,1);
-					Net.save(@tempFileName3+@"/TempLSMnet"+"_Repitition="+Param.iteration.ToString()+".obj");
+//					Net.save(@tempFileName3+@"/TempLSMnet"+"_Repitition="+Param.iteration.ToString()+".obj");
 					//---------------------------------------------------------------
-				}				
+				}
 				double[] targetLearnData;
 				double middle = (1.0 + Param.detector.Readout_Negative)/2;
 				for (int testDamage = 1 ; testDamage < 7; testDamage++) {
-					Net = Net.load(@tempFileName3+@"/TempLSMnet"+"_Repitition="+Param.iteration.ToString()+".obj");
+//					Net = Net.load(@tempFileName3+@"/TempLSMnet"+"_Repitition="+Param.iteration.ToString()+".obj");
 					Net.reset(ref Param);
 					
 					double[][][] ReadOut;
@@ -173,15 +173,24 @@ namespace Liquid_Detector.Tests.DamageLSM
 						
 						Presult=0;Nresult=0;results=0;
 						
-						for (int Vec = 0; Vec < ReadOut[report].Length ; Vec++){
+						for (int Vec = 0; Vec < ReadOut.Length ; Vec++){
 							double average = 0;
-							int windows = ReadOut[report][Vec].Length;
-							for (int w = 0; w < windows ; w++)
-								if ((ReadOut[report][Vec][w]==0)&&(Param.detector.ReadOut_Unit[report]==8))
+							int windows = ReadOut[Vec][report].Length;
+							counter=0;
+							for (int w = 0; w < windows ; w++){
+								if ((ReadOut[Vec][report][w]==0)&&(Param.detector.ReadOut_Unit[report]==8))
 									average+=Param.detector.Readout_Negative;
-								else
-									average+=ReadOut[report][Vec][w];
-							average/=windows;
+								else{
+									if (ReadOut[Vec][report][w]==0){
+										continue;
+									}else{
+										average+=ReadOut[Vec][report][w];
+										counter++;
+									}
+								}
+							}
+							if (counter>0)
+								average/=counter;
 							
 							if ((average>middle)&&(targetLearnData[Vec]>middle)) { results++;}
 							else if ((average<=middle)&&(targetLearnData[Vec]<=middle)) { results++;}

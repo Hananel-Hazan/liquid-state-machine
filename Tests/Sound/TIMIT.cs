@@ -99,7 +99,7 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 					}
 					currentTest = 0;
 					
-					
+					File.Delete("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
 					for (int loop = 0; loop < Param.test_Param.Repetition ; loop ++) {
 						currentTest = 0;
 						double[,] positiveID = new double[2,results],
@@ -133,7 +133,10 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							LSM_Net.changeTheresholdForInputNeurons(ref Param);
 						
 						LSM_Net.FullReset(ref Param);
+//						int[] temp = Param.input2liquid.LSM_Ratio_Of_Input_Interval;
+//						Param.input2liquid.LSM_Ratio_Of_Input_Interval[1] = 100;
 						LSM_Net.SilentTuneLiquid(ref Param,Param.detector.LSM_1sec_interval,Param.test_Param.Silent_Tuning,0);
+//						Param.input2liquid.LSM_Ratio_Of_Input_Interval[1] = temp[1];
 						LSM_Net.Dump_Network_Weights("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
 						LSM_Net.InputTuning(ref Param,ref SoundData_to_Learn,0,Param.test_Param.Input_Tuning);
 						LSM_Net.Dump_Network_Weights("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
@@ -185,16 +188,18 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 //								}
 //							}
 							
+							double hulf = (Param.detector.Readout_Negative + 1) /2.0;
+							
 							int samples = DetectorOutput.GetLength(0), detectors = DetectorOutput.GetLength(1);
 							for (int s = 0; s < samples; s++) {
 								for (int d = 0; d < detectors; d++){
 									if (Test_Data[s].Tag==d) {
-										if (DetectorOutput[s,d]<0)
+										if (DetectorOutput[s,d]<hulf)
 											positiveID[test,d]++;
 										else
 											FalseNegativeID[test,d]++;
 									}else{
-										if (DetectorOutput[s,d]>0)
+										if (DetectorOutput[s,d]>hulf)
 											NegativeID[test,d]++;
 										else
 											FalsePositiveID[test,d]++;

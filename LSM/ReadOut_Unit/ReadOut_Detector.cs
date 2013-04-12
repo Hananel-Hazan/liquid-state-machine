@@ -68,7 +68,7 @@ using Liquid;
 [Serializable()]
 public class ReadOut_Detector
 {
-	public int NetSize,NumberOfLiquidOutput,RealInputSize,OutputSize,windowSize,HiddenSize;
+	public int NetSize,Window_Size,LiquidSize,DetectorInputSize,RealInputSize,OutputSize,windowSize,HiddenSize;
 	private int model,ReadOut_unit_Model_AP_or_Sequ;
 	public int Detector_Run_Time,How_Many_Windows,MaxNumberOfWindows,ReadOut4EveryWindow;
 	public double[] Window_Accuracy;
@@ -87,7 +87,7 @@ public class ReadOut_Detector
 	Tempotron[] TempotronDetector;
 	//
 	
-	public ReadOut_Detector(int NumberOfLiquidOutput, int hiddenSize, int outputSize,int place,ref globalParam Param)
+	public ReadOut_Detector(int LiquidSize ,int hiddenSize, int outputSize,int place,ref globalParam Param)
 	{
 		//---------------------------------------------------------------------------------
 		//   Init Backpropagation Network
@@ -102,63 +102,46 @@ public class ReadOut_Detector
 		MaxNumberOfWindows = 0;
 		
 		this.OutputSize = outputSize;
-		this.NumberOfLiquidOutput = NumberOfLiquidOutput;
+		this.LiquidSize = LiquidSize;
+		this.Window_Size = 0;
+		this.DetectorInputSize = 0;
 		this.RealInputSize = 0;
 		this.HiddenSize = hiddenSize;
 		if (hiddenSize==0) hiddenSize=1;
 	}//---------------------------------------------------------------------------
-
-	public void initialization(int mode, ref globalParam Param)
+	
+	public void BuildDetector(ref globalParam Param)
 	{
-		int changeFlag = MaxNumberOfWindows , numOfReadOutUnits = 1;
+		if (Window_Size==0) return;
+		
+		int numOfReadOutUnits = 1;
 		
 		if (ReadOut4EveryWindow>1) numOfReadOutUnits = MaxNumberOfWindows;
 		
-		
-		if (this.Window_Accuracy.Length < numOfReadOutUnits)
-			Array.Resize(ref this.Window_Accuracy,numOfReadOutUnits);
-		//--------------
 		if (model==1) {
 			this.Per = new Perceptron[numOfReadOutUnits];
-			patterns = new List<Pattern>[MaxNumberOfWindows];
-		}else if (((this.model>1)&&(this.model<7))||(this.model==9)){
-			if (this.network==null){
-				this.network = new BasicNetwork[numOfReadOutUnits];
-				this.GtrainingSet = new IMLDataSet[MaxNumberOfWindows];
-			}else{
-				if ((mode==0)&&(this.network.Length<numOfReadOutUnits)){
-					BasicNetwork[]  temp = new BasicNetwork[numOfReadOutUnits];
-					this.network.CopyTo(temp,0);
-					changeFlag = this.network.Length;
-					for (int i = changeFlag ; i < numOfReadOutUnits; i++)
-						temp[i] = new BasicNetwork();
-					this.network = temp;
-				}
-				if ((this.GtrainingSet!=null)&&(this.GtrainingSet.Length<MaxNumberOfWindows)){
-					IMLDataSet[] temp = new IMLDataSet[MaxNumberOfWindows];
-					this.GtrainingSet.CopyTo(temp,0);
-					for (int i = GtrainingSet.Length; i < MaxNumberOfWindows; i++)
-						temp[i] = new BasicMLDataSet();
-					this.GtrainingSet = temp;
-				}
-				
-			}
+		}else if (((this.model>1)&&(this.model<7))||(this.model==9)||(this.model==10)){
+			this.network = new BasicNetwork[numOfReadOutUnits];
+			for (int i = 0 ; i < numOfReadOutUnits; i++)
+				this.network [i] = new BasicNetwork();
 		}else if (model==7){
 			this.SVM = new Model[numOfReadOutUnits];
-			dataToTrain = new Problem[MaxNumberOfWindows];
 		}else if (model==8){
 			this.TempotronDetector = new Tempotron[numOfReadOutUnits];
 		}
 		//--------------
 		numOfReadOutUnits = 1 ;
 		if (ReadOut4EveryWindow>1) numOfReadOutUnits = this.MaxNumberOfWindows;
-		for (int i = changeFlag ; i < numOfReadOutUnits  ; i++){
+		
+		if (this.Window_Accuracy.Length < numOfReadOutUnits)
+			Array.Resize(ref this.Window_Accuracy,numOfReadOutUnits);
+		
+		for (int i = 0 ; i < numOfReadOutUnits  ; i++){
 			if (model==1) {
-				this.Per[i] = new Perceptron(this.NumberOfLiquidOutput,ref Param);
-				patterns[i]= new List<Pattern>();
+				this.Per[i] = new Perceptron(this.DetectorInputSize,ref Param);
 			}else if (model==2) {
 				this.network[i] = new BasicNetwork();
-				this.network[i].AddLayer(new BasicLayer(new ActivationSigmoid(), true, this.NumberOfLiquidOutput));
+				this.network[i].AddLayer(new BasicLayer(new ActivationSigmoid(), true, this.DetectorInputSize));
 				this.network[i].AddLayer(new BasicLayer(new ActivationTANH(), true, this.OutputSize));
 				this.network[i].Structure.FinalizeStructure();
 				this.network[i].Structure.FinalizeLimit();
@@ -166,11 +149,11 @@ public class ReadOut_Detector
 			}else if ((model>2)&&(model<7)){
 				this.network[i] = new BasicNetwork();
 				if (ReadOut_unit_Model_AP_or_Sequ==1){
-					this.network[i].AddLayer(new BasicLayer(new ActivationTANH() , true, this.NumberOfLiquidOutput));
+					this.network[i].AddLayer(new BasicLayer(new ActivationTANH() , true, this.DetectorInputSize));
 					this.network[i].AddLayer(new BasicLayer(new ActivationTANH(), true, this.HiddenSize));
 					this.network[i].AddLayer(new BasicLayer(new ActivationTANH(), false, this.OutputSize));
 				}else if (ReadOut_unit_Model_AP_or_Sequ==2){
-					this.network[i].AddLayer(new BasicLayer(new ActivationLOG(), true, this.NumberOfLiquidOutput));;
+					this.network[i].AddLayer(new BasicLayer(new ActivationLOG(), true, this.DetectorInputSize));;
 					this.network[i].AddLayer(new BasicLayer(new ActivationLOG(), true, this.HiddenSize));
 					this.network[i].AddLayer(new BasicLayer(new ActivationBiPolar(), true, this.OutputSize));
 				}
@@ -179,24 +162,62 @@ public class ReadOut_Detector
 				this.network[i].Reset(Convert.ToInt32(Param.rnd.NextDouble()*100));
 			}else if (model==7) {
 				this.SVM[i] = new Model();
-				dataToTrain[i] = new Problem();
 			}else if (model==8) {
 				TempotronDetector[i] = new Tempotron(this.RealInputSize);
 			}else if (model==9) {
 
+			}else if (model==10) {
+				this.network[i] = new BasicNetwork();
+				this.network[i].AddLayer(new BasicLayer(new ActivationTANH(), true, this.DetectorInputSize));
+				this.network[i].AddLayer(new BasicLayer(new ActivationTANH(), true, this.HiddenSize));
+				this.network[i].AddLayer(new BasicLayer(new ActivationTANH(), false, this.DetectorInputSize));
+				this.network[i].Structure.FinalizeStructure();
+				this.network[i].Structure.FinalizeLimit();
+				this.network[i].Reset(Convert.ToInt32(Param.rnd.NextDouble()*100));
 			}
+			
 		}
 		//--------------
-		this.NetSize=NumberOfLiquidOutput+HiddenSize+OutputSize;
+		this.NetSize=DetectorInputSize+HiddenSize+OutputSize;
 		//--------------
+	}//---------------------------------------------------------------------------
+
+	public void initialization(ref globalParam Param)
+	{
+		int WinORDetec = 1;
+		if (this.ReadOut4EveryWindow==2) WinORDetec = MaxNumberOfWindows;
+		
+		//--------------
+		if (model==1) {
+			patterns = new List<Pattern>[WinORDetec];
+		}else if (((this.model>1)&&(this.model<7))||(this.model==9)||(this.model==10)){
+			if (this.GtrainingSet==null){
+				this.GtrainingSet = new IMLDataSet[WinORDetec];
+				for (int i = 0 ; i < GtrainingSet.Length; i++)
+					GtrainingSet[i] = new BasicMLDataSet();
+			}else{
+				if ((this.GtrainingSet!=null)&&(this.GtrainingSet.Length<WinORDetec)){
+					IMLDataSet[] temp = new IMLDataSet[WinORDetec];
+					
+					for (int i = 0 ; i < GtrainingSet.Length; i++)
+						temp[i]=GtrainingSet[i];
+					for (int i = GtrainingSet.Length; i < WinORDetec; i++)
+						temp[i] = new BasicMLDataSet();
+					this.GtrainingSet = temp;
+				}
+				
+			}
+		}else if (model==7){
+			dataToTrain = new Problem[WinORDetec];
+		}else if (model==8){
+		}
+		
 	}//--------------------------------------------------------------------
-	
-	
+
+
 	public int ConfigWindowParameters(ref Liquid.LSM LSM, int Input_Length, ref globalParam Param){
 		
-		int Window_Size = Param.detector.ReadoutU_Window_Size;
-		if (Param.detector.ReadoutU_Window_Size<=0)
-			Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
+		DetectorInputSize = Window_Size * LiquidSize;
 		
 		int Liquid_Run_Time = LSM.TimeInitialization(Input_Length,ref Param);
 		int windowSize = Window_Size +
@@ -228,43 +249,34 @@ public class ReadOut_Detector
 			}
 		}
 //		//----------------------------------------
-//		if (this.ReadOut_unit_Model_AP_or_Sequ==1){
-//			if (Param.detector.ReadoutU_Window_Size<=0)
-//				this.NumberOfLiquidOutput = windowSize;
-//			else
-//				this.NumberOfLiquidOutput*= Param.detector.ReadoutU_Window_Size ;
-//		}
-//		//--------------
 		
 		if (HowManyWindows> MaxNumberOfWindows)
 			MaxNumberOfWindows = HowManyWindows;
 		
 		return HowManyWindows;
 	}
-	
-	
-	public void DidWindowChange(int mode ,ref Liquid.LSM LSM,int Input_Length, ref globalParam Param){
+
+
+	public void DidWindowChange(ref Liquid.LSM LSM,int Input_Length, ref globalParam Param){
+		
+		Window_Size = Param.detector.ReadoutU_Window_Size;
+		if (Param.detector.ReadoutU_Window_Size<=0){
+			if (Param.neuronParam.Steps_Between_Two_Spikes_In_Silence>0)
+				Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes_In_Silence;
+			else
+				Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
+		}
 		
 		int Liquid_Run_Time = LSM.TimeInitialization(Input_Length,ref Param);
-		
-//		if (LengthOfLastInput==Liquid_Run_Time)
-//			return;
-//		LengthOfLastInput = Liquid_Run_Time;
-		
-		int Window_Size = Param.detector.ReadoutU_Window_Size;
-		if (Param.detector.ReadoutU_Window_Size<=0)
-			Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
-
 		
 		int HowManyWindows = Param.detector.ReadoutU_How_Many_Windows;
 		if (Param.detector.ReadoutU_How_Many_Windows==0)
 			HowManyWindows = ConfigWindowParameters(ref LSM,Input_Length,ref Param);
 		
-//		if (HowManyWindows!=this.Window_Start_Index.Length){
-//			if (this.Window_Start_Index.Length < HowManyWindows)
-//				Array.Resize(ref this.Window_Start_Index,HowManyWindows);
-		this.How_Many_Windows = HowManyWindows;
-		this.Window_Start_Index = new Int32[HowManyWindows];
+		if (HowManyWindows> this.How_Many_Windows){
+			this.How_Many_Windows = HowManyWindows;
+			Array.Resize(ref this.Window_Start_Index, HowManyWindows);
+		}
 		
 		if (this.Window_Accuracy.Length < HowManyWindows)
 			Array.Resize(ref this.Window_Accuracy, HowManyWindows);
@@ -304,9 +316,7 @@ public class ReadOut_Detector
 				this.Window_Start_Index[i] = current;
 			}
 		}
-//		}
-		this.initialization(mode,ref Param);
-		
+		this.initialization(ref Param);
 	}
 
 	public void copy(ref string file){
@@ -315,7 +325,7 @@ public class ReadOut_Detector
 		BinaryFormatter binaryFormater = new BinaryFormatter();
 		
 		binaryFormater.Serialize(fileStream, NetSize);
-		binaryFormater.Serialize(fileStream, NumberOfLiquidOutput);
+//		binaryFormater.Serialize(fileStream, NumberOfLiquidOutput);
 		binaryFormater.Serialize(fileStream, OutputSize);
 		binaryFormater.Serialize(fileStream, model);
 		binaryFormater.Serialize(fileStream, Window_Accuracy);
@@ -335,7 +345,7 @@ public class ReadOut_Detector
 		BinaryFormatter binaryFormater = new BinaryFormatter();
 		
 		NetSize = (int) binaryFormater.Deserialize(fileStream);
-		NumberOfLiquidOutput = (int) binaryFormater.Deserialize(fileStream);
+//		NumberOfLiquidOutput = (int) binaryFormater.Deserialize(fileStream);
 		OutputSize = (int) binaryFormater.Deserialize(fileStream);
 		model = (int) binaryFormater.Deserialize(fileStream);
 		Window_Accuracy = (double[]) binaryFormater.Deserialize(fileStream);
@@ -362,21 +372,18 @@ public class ReadOut_Detector
 	}//--------------------------------------------------------------------
 
 	public int windowFinder(ref bool[,] LearnVec,ref bool[] input,out double[] trainingSet,
-	                        int inputStart, int window,int timeInWin,int neg)
+	                        int inputStart, int window,int timeInWin,int neg,int neurons)
 	{
 		int Activity=0;
 		
-		int neurons = LearnVec.GetLength(0);
 		
-//		trainingSet = new double[NumberOfLiquidOutput];
-//		if (this.ReadOut_unit_Model_AP_or_Sequ==2)
-		trainingSet = new double[NumberOfLiquidOutput*timeInWin];
+		trainingSet = new double[DetectorInputSize];
 		
 		window += inputStart;
 		timeInWin += window;
 		
-		if (timeInWin > LearnVec.GetLength(1))
-			return 0;
+		if (timeInWin>LearnVec.GetLength(1))
+			return Activity;
 		
 		int counter = 0;
 		for (int n = 0; n < neurons; n++) {
@@ -386,39 +393,11 @@ public class ReadOut_Detector
 					trainingSet[counter] = 1;
 					Activity++;
 				}else
-					trainingSet[counter] = neg; //0 
+					trainingSet[counter] = 0; //0
 				counter++;
 			}
 		}
 		
-		return Activity;
-	}
-	
-	
-	public int windowFinder(ref bool[,] LearnVec,ref bool[] input,ref bool[,] trainingSet,
-	                        int inputStart, int window,int timeInWin)
-	{
-		window += inputStart;
-		timeInWin += window;
-		
-		if (window>LearnVec.GetLength(0))
-			return 0;
-
-		int Activity=0;
-		
-		int neurons = LearnVec.GetLength(0);
-		for (int n = 0; n < neurons; n++) {
-			if (input[n]) continue;
-			int counter = 0;
-			for (int t = window; t < timeInWin ; t++) {
-				if (LearnVec[n, t] ){
-					trainingSet[counter,n] = true;
-					Activity++;
-				}else
-					trainingSet[counter,n] = false;
-				counter++;
-			}
-		}
 		return Activity;
 	}
 
@@ -427,15 +406,15 @@ public class ReadOut_Detector
 	{
 		/// Shimon Maron Idea of sequance of firing in window
 		trainingResult = new double[neurons];
-		int[] ignoringTime = new int[this.NumberOfLiquidOutput];
-		for (int i = 0; i < this.NumberOfLiquidOutput; i++) { ignoringTime[i] = 0;	}
+		int[] ignoringTime = new int[this.Window_Size];
+		for (int i = 0; i < this.Window_Size; i++) { ignoringTime[i] = 0;	}
 		
 		int backupTime=0,neu = 0,ncounter=0 , time =trainingSet.GetLength(0);
 		for (int t = 0; t < time ; t++) {
 			if (ncounter==neurons) ncounter++;
 			if (trainingSet[t]==1)
 			{
-				int neuronNumber = t%this.NumberOfLiquidOutput, temp = t/this.NumberOfLiquidOutput;
+				int neuronNumber = t%this.Window_Size, temp = t/this.Window_Size;
 				if (ignoringTime[neuronNumber]>0) {ignoringTime[neuronNumber]--; continue;}
 				if (trainingSet[t]==1) continue;
 				if (backupTime!=(temp)){
@@ -444,7 +423,7 @@ public class ReadOut_Detector
 				}
 				trainingResult[ncounter] = neu;
 			}
-			if (neu==this.NumberOfLiquidOutput) break;
+			if (neu==this.Window_Size) break;
 			
 		}
 
@@ -454,7 +433,7 @@ public class ReadOut_Detector
 //	{
 //		CollectData(ref LearnVec,ref InputNeurons, ref TargetVec.Target,ref LSM, TargetVec.Input.GetLength(1),iniz , ref Param);
 //	}
-	
+
 	public void CollectData(ref bool[][,] LearnVec,ref bool[] InputNeurons,ref globalParam.Data[] TargetVec,ref Liquid.LSM LSM, ref int[] inputSize ,ref globalParam Param)
 	{
 		int samples = LearnVec.Length;
@@ -470,11 +449,7 @@ public class ReadOut_Detector
 		int neurons = LearnVec.GetLength(0) , times = LearnVec.GetLength(1);
 		int Real_Inpur_Length = Param.input2liquid.ComputeInputTime(inputSize);
 		
-		DidWindowChange(0,ref LSM, inputSize,ref Param);
-		
-		int Window_Size = Param.detector.ReadoutU_Window_Size;
-		if (Param.detector.ReadoutU_Window_Size<=0)
-			Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
+		DidWindowChange(ref LSM, inputSize,ref Param);
 		
 		for (int win = 0; win < How_Many_Windows; win++) {
 			double[] dataset = new double[0];
@@ -490,11 +465,11 @@ public class ReadOut_Detector
 			int Activity = 0;
 			
 			if (Param.detector.Readout_Activity_during_Input_time==1)
-				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
+				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative,neurons);
 			else if (Param.detector.Readout_Activity_during_Input_time==0)
-				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
+				Activity = windowFinder(ref LearnVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative,neurons);
 			
-			if ((Activity==0)||(Activity==Window_Size*LearnVec.GetLength(0)))
+			if ((Activity==0)||(Activity==DetectorInputSize))
 				continue;
 			
 			if (this.model==1){
@@ -511,8 +486,6 @@ public class ReadOut_Detector
 				
 			}else if (((this.model>1)&&(this.model<7))||(this.model==9)){
 				
-//				if ((this.ReadOut4EveryWindow == 1 && win==0&iniz)||(this.ReadOut4EveryWindow == 2 &iniz))
-//					GtrainingSet[readoutNumber] = new BasicMLDataSet();
 				if (this.ReadOut_unit_Model_AP_or_Sequ==1){
 					GtrainingSet[readoutNumber].Add(new BasicMLData(dataset),
 					                                new BasicMLData(new double[]{trainingResult}));
@@ -531,8 +504,8 @@ public class ReadOut_Detector
 				
 				if (this.ReadOut_unit_Model_AP_or_Sequ==1){
 					dataToTrain[readoutNumber].Y[win] = trainingResult; // class lable
-					dataToTrain[readoutNumber].X[0] = new Node[NumberOfLiquidOutput];
-					for (int num = 0; num < NumberOfLiquidOutput ; num++) {
+					dataToTrain[readoutNumber].X[0] = new Node[Window_Size];
+					for (int num = 0; num < Window_Size ; num++) {
 						dataToTrain[readoutNumber].X[0][num] = new Node(win,dataset[num]);  //i->index of the data point, the sec is data point
 						dataToTrain[readoutNumber].MaxIndex++;
 					}
@@ -547,16 +520,19 @@ public class ReadOut_Detector
 				}
 				
 			}else if (model==8) {
-				bool[,] temp = new bool[Window_Size,neurons];
-				windowFinder(ref LearnVec,ref InputNeurons, ref temp, Real_Inpur_Length, this.Window_Start_Index[win], this.Window_Start_Index[win]+Window_Size);
-				TempotronDetector[readoutNumber].CollectData(ref temp, ref trainingResult);
+				TempotronDetector[readoutNumber].CollectData(ref dataset, ref trainingResult);
+				
+			}else if (this.model==10){
+				GtrainingSet[readoutNumber].Add(new BasicMLData(dataset),
+				                                new BasicMLData(dataset));
 			}
 			
 		}
 	}
-	
+
 	public void StratTrain(ref double LastReturnError,ref globalParam Param)
 	{
+		BuildDetector(ref Param);
 		
 		if (this.model==1)
 			Console.WriteLine("Perceptron Training..");
@@ -571,10 +547,11 @@ public class ReadOut_Detector
 		int temp = 1;
 		if (this.ReadOut4EveryWindow==2) temp = How_Many_Windows;
 		
-		this.initialization(1,ref Param);
-		
+		this.initialization(ref Param);
+		int actualWindow = 0;
 		for (int windowindex = 0 ; windowindex < temp ; windowindex++ ) {
 			int readoutNumber=0;
+			if (this.ReadOut4EveryWindow == 2) readoutNumber=windowindex;
 			
 			if (this.model==1){
 				
@@ -583,7 +560,7 @@ public class ReadOut_Detector
 					this.Window_Accuracy[windowindex] = (error>1)? 0: 1-error;
 				globalError += error/(patterns.Length);
 				
-			}else if (((this.model>1)&&(this.model<7))||(this.model==9)){
+			}else if (((this.model>1)&&(this.model<7))||(this.model==9)||(this.model==10)){
 				IMLTrain train;
 				switch (this.model) {
 						
@@ -619,6 +596,11 @@ public class ReadOut_Detector
 						modelName="Encog SVM";
 						break;
 						
+					case 10:
+						train = new ResilientPropagation(network[readoutNumber], this.GtrainingSet[windowindex]);
+						modelName="Bottleneck - Resilient Backpropagation";
+						break;
+						
 					default:
 						train = new TrainAdaline(network[readoutNumber], this.GtrainingSet[windowindex], 0.01);
 						modelName="Adaline";
@@ -635,7 +617,8 @@ public class ReadOut_Detector
 				if (this.ReadOut4EveryWindow == 2){
 					if ((train.Error>0)&&(train.Error<1)){
 						this.Window_Accuracy[windowindex] = Math.Round(1-train.Error,2);
-						globalError+=train.Error/(GtrainingSet.Length);
+						globalError+=train.Error;
+						actualWindow++;
 					}else{
 						this.Window_Accuracy[windowindex] = 0;
 					}
@@ -667,6 +650,8 @@ public class ReadOut_Detector
 				globalError+=(1.0*globalError)/How_Many_Windows;
 			}
 		}
+		if (actualWindow>0)
+			globalError/=actualWindow;
 		Console.WriteLine("Finish... Error = {0}",globalError);
 		
 		CleanCollectedData();
@@ -701,12 +686,8 @@ public class ReadOut_Detector
 		int neurons =TestVec.GetLength(0) ,	times = TestVec.GetLength(1);
 		int Real_Inpur_Length = Param.input2liquid.ComputeInputTime(inputSize);
 		
-		int Window_Size = Param.detector.ReadoutU_Window_Size;
-		if (Param.detector.ReadoutU_Window_Size<=0)
-			Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
-		
 		//this.How_Many_Windows = ManyWindows(ref LSM,inputSize,ref Param);
-		DidWindowChange(1,ref LSM, inputSize,ref Param);
+		DidWindowChange(ref LSM, inputSize,ref Param);
 		
 		if ((this.ReadOut4EveryWindow == 2)||(Param.detector.Approximate_OR_Classification==1))
 			output = new double[How_Many_Windows];
@@ -722,9 +703,9 @@ public class ReadOut_Detector
 			int Activity = 0;
 			
 			if (Param.detector.Readout_Activity_during_Input_time==1)
-				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
+				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative,neurons);
 			else if (Param.detector.Readout_Activity_during_Input_time==0)
-				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
+				Activity = windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative,neurons);
 			
 			if ((Activity==0)||(Activity==Window_Size*TestVec.GetLength(0)))
 				continue;
@@ -775,8 +756,8 @@ public class ReadOut_Detector
 			}else if (this.model==7){
 				
 				if (this.ReadOut_unit_Model_AP_or_Sequ==1){
-					Node[] dataToTest = new Node[NumberOfLiquidOutput];
-					for (int neuron = 0; neuron < NumberOfLiquidOutput ; neuron++) {
+					Node[] dataToTest = new Node[Window_Size];
+					for (int neuron = 0; neuron < Window_Size ; neuron++) {
 						dataToTest[neuron] = new Node(win,dataset[neuron]);// index and data point
 					}
 					output[0]= Prediction.Predict(this.SVM[readoutNumber], dataToTest);
@@ -792,9 +773,9 @@ public class ReadOut_Detector
 				bool[,] temp = new bool[Window_Size,neurons];
 				
 				if (Param.detector.Readout_Activity_during_Input_time==1)
-					windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
+					windowFinder(ref TestVec,ref InputNeurons,out dataset,0 , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative,neurons);
 				else if (Param.detector.Readout_Activity_during_Input_time==0)
-					windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative);
+					windowFinder(ref TestVec,ref InputNeurons,out dataset,Real_Inpur_Length , this.Window_Start_Index[win], Window_Size,Param.detector.Readout_Negative,neurons);
 
 				double[] voltOutput;
 				int Firing=0;
@@ -803,12 +784,38 @@ public class ReadOut_Detector
 					output[0] = Firing>0?1:Param.detector.Readout_Negative;
 				else
 					output[win] = this.Window_Accuracy[readoutNumber] * (Firing>0?1:Param.detector.Readout_Negative);
+			}else if (this.model==10){
+				if (readoutNumber>=network.Length) continue;
+				double[] Netoutput = new double[dataset.Length];
+				network[readoutNumber].Compute(dataset,Netoutput);
+				double result = 0;
+				for (int i = 0; i < dataset.Length ; i++) {
+					if ((dataset[i] > 0 && Netoutput[i] > 0) ||
+					    (dataset[i] == 0 && Netoutput[i] == 0) ||
+					    (dataset[i] < 0 && Netoutput[i] < 0))
+						result++;
+				}
+				
+				if (Param.detector.Approximate_OR_Classification==1){
+					output[win] = result / dataset.Length;
+				}else{
+					if (this.ReadOut4EveryWindow == 1){
+						output[0] +=  result / dataset.Length;
+						count++;
+					}else if (this.Window_Accuracy[readoutNumber]>0){
+						if (Param.detector.ReadOut_Ignore_Window_Acuracy==1)
+							output[win] += result / dataset.Length;
+						else
+							output[win] += (result / dataset.Length) * this.Window_Accuracy[readoutNumber];
+						count++;
+					}
+				}
 			}
 			
 		}
 		
-		if (((this.model>1)&&(this.model<7))||(this.model==9))
-			if (this.ReadOut4EveryWindow == 1){
+		if (((this.model>1)&&(this.model<7))||(this.model==9)||(this.model==10))
+			if ((count>0)&&(output[0]>0)&&(this.ReadOut4EveryWindow == 1)){
 			output[0] /= count;
 		}
 		
