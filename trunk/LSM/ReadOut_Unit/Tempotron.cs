@@ -73,21 +73,21 @@ public class Tempotron
 	}
 	//===============
 	
-	public void CollectData(ref bool[,] TrainingSet, ref double TargetSet){
-		int lengh = TrainSet.Length;
-		DataSet[] Temp = new DataSet[lengh+1];
-		for (int i = 0; i < lengh ; i++) {
-			Temp[i] = new DataSet();
-			Temp[i].input = (bool[,]) TrainSet[i].input.Clone();
-			Temp[i].IdealOutput = TrainSet[i].IdealOutput;
-		}
-		Temp[lengh].input = (bool[,]) TrainingSet.Clone();
-		if (TargetSet>0)
-			Temp[lengh].IdealOutput = true;
-		else
-			Temp[lengh].IdealOutput = false;
-		
-		TrainSet = Temp;
+	public void CollectData(ref double[] TrainingSet, ref double TargetSet){
+//		int lengh = TrainSet.Length;
+//		DataSet[] Temp = new DataSet[lengh+1];
+//		for (int i = 0; i < lengh ; i++) {
+//			Temp[i] = new DataSet();
+//			Temp[i].input = (bool[,]) TrainSet[i].input.Clone();
+//			Temp[i].IdealOutput = TrainSet[i].IdealOutput;
+//		}
+//		Temp[lengh].input = (double[,]) TrainingSet.Clone();
+//		if (TargetSet>0)
+//			Temp[lengh].IdealOutput = true;
+//		else
+//			Temp[lengh].IdealOutput = false;
+//		
+//		TrainSet = Temp;
 	}
 	
 	//===============

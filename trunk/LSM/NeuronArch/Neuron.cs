@@ -212,20 +212,20 @@ namespace Neurons
 			LTDchange = Param.neuronParam.STDPMaxChange[1];
 			LTDchangeLittle = LTDchange/10;
 			LTPwin = Param.neuronParam.STDPwindow[0];
-			LTDwin = Param.neuronParam.STDPwindow[1]-1;
+			LTDwin = Param.neuronParam.STDPwindow[1];
 			LTPcounter = 0;
 			LTDcounter = 0;
 			firedBeforeXciycles = 0;
 			LTP = new double[this.Input_weights.Length];
 			LTD = new double[this.Input_weights.Length];
-			LTDwindows = new double[LTDwin+1];
+			LTDwindows = new double[LTDwin];
 			if (LTDwin>0)
-				for (int i = LTDwin ; i >= 0 ; i--)
-					LTDwindows[i]=1 - (i+0.0)/LTDwin;
+				for (int i = LTDwin-1 ; i >= 0 ; i--)
+					LTDwindows[i]=  LTDchange * (1 - (i+0.0)/LTDwin);
 			
 			LTPwindows = new double[LTPwin];
 			for (int i = 0; i < LTPwin; i++) {
-				LTPwindows[i]= (LTPwin-(i+0.0))/LTPwin;
+				LTPwindows[i]= LTPchange * ((LTPwin-(i+0.0))/LTPwin);
 			}
 			
 			//STDP v.1.  - End
@@ -278,12 +278,10 @@ namespace Neurons
 						if ((InputNeuronsList[i].firedBeforeXciycles >= 0) &&
 						    (InputNeuronsList[i].firedBeforeXciycles<LTPwin)){
 //							LTP[i] += LTPwindows[InputNeuronsList[i].firedBeforeXciycles]/LTPwin;
-							increase_weight(i, ((LTPwindows[InputNeuronsList[i].firedBeforeXciycles]/LTPwin)* LTPchange) );
-							flag[1]++;  // LTP
+							 flag[1] += increase_weight(i, ((LTPwindows[InputNeuronsList[i].firedBeforeXciycles]/LTPwin)) );
 						}
 //						if (InputNeuronsList[i].Nunit.internal_Refactory){
-//							increase_weight(i, (LTPchange) );
-//							flag[1]++;  // LTP
+//							flag[1] += increase_weight(i, (LTPchange) );
 //						}
 
 					}
@@ -303,7 +301,7 @@ namespace Neurons
 					
 					// Sliding Threshold v2
 //					if (this.Nunit.therashold>this.Nunit.initTherashold)
-					if (this.Number_Fireing_in_Second>Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max){
+					if ((this.Number_Fireing_in_Second>Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max)){
 						this.Nunit.therashold += RandomElemnt_double;
 //					else
 //						this.Nunit.therashold = this.Nunit.initTherashold;
@@ -320,7 +318,8 @@ namespace Neurons
 				
 				// Sliding Threshold v2
 				if (this.Slideing_Threshold==1){
-					if (this.Number_Fireing_in_Second<Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min){
+//					if (this.Number_Fireing_in_Second<Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min){
+					if (this.Number_Fireing_in_Second==0){
 						this.Nunit.therashold -= RandomElemnt_double;
 						flag[2]++;
 					}
@@ -383,7 +382,7 @@ namespace Neurons
 			
 			flag[1] += LTPcounter;  // LTP
 			LTPcounter = 0;
-			flag[0] +=LTDcounter;	// LTD
+			flag[0] += LTDcounter;	// LTD
 			LTDcounter = 0;
 			
 			this.mode = 1;
@@ -396,7 +395,7 @@ namespace Neurons
 			
 			this.iniInput_weights = (double[]) this.Input_weights.Clone();
 			
-//			this.Nunit.initTherashold = this.Nunit.therashold;
+			this.Nunit.initTherashold = this.Nunit.therashold;
 //			this.Nunit.init_decayRate = this.Nunit.decayRate;
 		}//----------------------------------------------------------------
 
@@ -417,12 +416,8 @@ namespace Neurons
 
 			
 			if ((Nunit.internal_Refactory)&&(STDP==1)&&(LTDwindows.Length>0)){
-
-				if ((this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin))
-					decrease_weight(place, (LTDwindows[this.firedBeforeXciycles] * LTDchange));
-				else
-					decrease_weight(place, (LTDwindows[LTDwin] * LTDchange));
-				LTDcounter++;
+				if ((this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<LTDwin))
+					LTDcounter += decrease_weight(place, (LTDwindows[this.firedBeforeXciycles]));
 			}
 			
 //			if ((STDP==1)&&((Nunit.internal_Refactory)||((this.firedBeforeXciycles>=0)&&(this.firedBeforeXciycles<=LTDwin)))){
@@ -480,7 +475,8 @@ namespace Neurons
 			
 		}//----------------------------------------------------------------
 
-		public void increase_weight(int place,double by){
+		public int increase_weight(int place,double by){
+			int counter = 0;
 			if (by!=0){
 				if  (this.Neuron_propotional_weight_Update==1){
 					int length = this.Input_weights.Length;
@@ -577,12 +573,18 @@ namespace Neurons
 					
 					if(this.posiORneg==1){
 						this.Input_weights[place]+=by;
-						if (this.Input_weights[place] > maxPosWeights)
+						counter++;
+						if (this.Input_weights[place] > maxPosWeights){
 							this.Input_weights[place]-=by;
+							counter--;
+						}
 					}else if(this.posiORneg==2){
 						this.Input_weights[place]-=by;
-						if (this.Input_weights[place] < minNegWeights)
+						counter++;
+						if (this.Input_weights[place] < minNegWeights){
 							this.Input_weights[place]+=by;
+							counter--;
+						}
 					}
 					
 					
@@ -592,13 +594,16 @@ namespace Neurons
 //						this.Input_weights[place]-=by;
 				}
 			}
+			return counter;
 		}//----------------------------------------------------------------
 
-		public void decrease_weight(int place,double by){
+		public int decrease_weight(int place,double by){
 			///////////
 			/// need to use:
 			/// Neuron_propotional_weight_Update
 			/// 
+			
+			int counter = 0;
 			
 			if  (this.Neuron_propotional_weight_Update==1){
 				
@@ -705,12 +710,18 @@ namespace Neurons
 				
 				if(this.posiORneg==1){
 					this.Input_weights[place]-=by;
-					if (this.Input_weights[place] < minPosWeights)
+					counter++;
+					if (this.Input_weights[place] < minPosWeights){
 						this.Input_weights[place]+=by;
+						counter--;
+					}
 				}else if(this.posiORneg==2){
 					this.Input_weights[place]+=by;
-					if (this.Input_weights[place] > maxNegWeights)
+					counter++;
+					if (this.Input_weights[place] > maxNegWeights){
 						this.Input_weights[place]-=by;
+						counter--;
+					}
 				}
 				
 				
@@ -719,6 +730,8 @@ namespace Neurons
 //				else if ((this.posiORneg==2)&&((this.Input_weights[place]+by)<maxNegWeights))
 //					this.Input_weights[place]+=by;
 			}
+			
+			return counter;
 		}//----------------------------------------------------------------
 
 		
