@@ -174,8 +174,6 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							TotalSize[test] = Test_Data.Length;
 							
 							double hulf = (Param.detector.Readout_Negative + 1) /2.0;
-							if (NumOfGroups ==2)
-								hulf = 0;
 							int samples = DetectorOutput.GetLength(0), detectors = DetectorOutput.GetLength(1);
 							for (int s = 0; s < samples; s++) {
 								for (int d = 0; d < detectors; d++){
