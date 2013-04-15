@@ -144,8 +144,10 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 
 						// Training //
 						double[] LastReturnError;
+						int NumOfGroups=0;
 						Console.WriteLine("Trainning Readout Units");
-						LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Test, ref SoundData_to_Learn,0);
+						NumOfGroups = LSM_Net.MakeTargetinDB(ref Param, ref SoundData_to_Learn, ref SoundData_to_Test);
+						LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Learn,0);
 						
 						
 						// Testing //
@@ -171,38 +173,27 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							}
 							TotalSize[test] = Test_Data.Length;
 							
-//							int samples = DetectorOutput.GetLength(0), detectors = DetectorOutput.GetLength(1);
-//							for (int s = 0; s < samples; s++) {
-//								for (int d = 0; d < detectors; d++){
-//									if (Test_Data[s].Target[0]>=0) {
-//										if (DetectorOutput[s,d]>=0)
-//											positiveID[test]++;
-//										else
-//											FalseNegativeID[test]++;
-//									}else if (Test_Data[s].Target[0]<0){
-//										if (DetectorOutput[s,d]<0)
-//											NegativeID[test]++;
-//										else
-//											FalsePositiveID[test]++;
-//									}
-//								}
-//							}
-							
 							double hulf = (Param.detector.Readout_Negative + 1) /2.0;
-							
+							if (NumOfGroups ==2)
+								hulf = 0;
 							int samples = DetectorOutput.GetLength(0), detectors = DetectorOutput.GetLength(1);
 							for (int s = 0; s < samples; s++) {
 								for (int d = 0; d < detectors; d++){
-									if (Test_Data[s].Tag==d) {
-										if (DetectorOutput[s,d]<hulf)
-											positiveID[test,d]++;
-										else
-											FalseNegativeID[test,d]++;
+									if (Param.detector.ReadOut_Unit[d]==10){
+										
 									}else{
-										if (DetectorOutput[s,d]>hulf)
-											NegativeID[test,d]++;
-										else
-											FalsePositiveID[test,d]++;
+										// Binary Calssfication//
+										if (Test_Data[s].Target[0]>=hulf) {
+											if ((DetectorOutput[s,d]>=hulf)&&(Test_Data[s].Target[0]>=hulf))
+												positiveID[test,d]++;
+											else
+												FalseNegativeID[test,d]++;
+										}else{
+											if ((DetectorOutput[s,d]<hulf)&&(Test_Data[s].Target[0]<hulf))
+												NegativeID[test,d]++;
+											else
+												FalsePositiveID[test,d]++;
+										}
 									}
 								}
 							}
@@ -223,13 +214,17 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							finalReport.WriteLine();
 							finalReport.WriteLine();
 							finalReport.WriteLine();
-							finalReport.WriteLine("----------------------------------------------------------------------------");
+							finalReport.WriteLine("----------------------------------------------------------------------------");							
+							finalReport.WriteLine("File Names:");
+							for (int i = 0; i < FileNames.Length; i++) 
+								finalReport.WriteLine("1) "+FileNames[i]);
+							
 							for (int i = 0; i < 2 ; i++) {
 								
 								if (i==0)
-									finalReport.WriteLine("____________________Train set For "+FileNames[d/Param.detector.ReadOut_Unit.Length]+"_________________________");
+									finalReport.WriteLine("____________________Train_________________________");
 								else
-									finalReport.WriteLine("____________________Test set For "+FileNames[d/Param.detector.ReadOut_Unit.Length]+"_________________________");
+									finalReport.WriteLine("____________________Test_________________________");
 								finalReport.WriteLine("Results");
 								finalReport.WriteLine("(TruePositive/(TruePositive+FalseNegative))	=>	Average="+TP[i][d].Return_Average().ToString()+" Standard deviation="+TP[i][d].Return_Standard_Deviation().ToString());
 								finalReport.WriteLine("(TrueNegative/(TrueNegative+FalsePositive))	=>	Average="+TN[i][d].Return_Average().ToString()+" Standard deviation="+TN[i][d].Return_Standard_Deviation().ToString());
@@ -287,7 +282,7 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 			int[] lines = new int[rgFiles.Length], rows= new int[rgFiles.Length],
 			learnSize = new int[rgFiles.Length],testSize = new int[rgFiles.Length];
 			numFiles = 0;
-			int Target,FlagTarget;
+			int Target=0;
 			
 			int persentagesORtwoFiles = 0 ; // 0 = presentages , 1 = two files.
 			for (int f = 0; f < rgFiles.Length; f++)
@@ -296,19 +291,6 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 				break;
 			}
 			
-			
-			if (persentagesORtwoFiles==0){
-				if (rgFiles.Length==2){
-					Target = -1;
-					FlagTarget = 1;
-				}else{
-					Target = 0 ; // Not Use!!!
-					FlagTarget = 0;  // Not Use!!!
-				}
-			}else{
-				Target = 0 ; // Not Use!!!
-				FlagTarget = 0;  // Not Use!!!
-			}
 			
 			
 			
@@ -376,8 +358,9 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							else
 								leng++;
 						}
-						if ((TIndex<trainIndex.Length)&&(i==trainIndex[TIndex]))
-						{  // go to treain group
+						if (((TIndex<trainIndex.Length)&&(i==trainIndex[TIndex])) ||
+						    (rgFiles[f].Name.Contains("Train")))
+						{  // treain group
 							TIndex++;
 							SoundData2Learn[TrainI].Input = new double[rows[f],leng];
 							for (int r = 0; r < rows[f]; r++) {
@@ -393,72 +376,7 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							SoundData2Learn[TrainI].Target = new double[]{Target};
 							SoundData2Learn[TrainI].Tag = f;
 							TrainI++;
-						}else{  // go to Test group
-							SoundData2Test[TestI].Input = new double[rows[f],leng];
-							for (int r = 0; r < rows[f]; r++) {
-								for (int t = 0; t < row.Length ; t++) { // Search phnema
-									if (row[t]=="") continue;
-									SoundData2Test[TestI].Input[r,t] = factor * Convert.ToDouble(row[t]);
-								}
-								if ((r+1)<rows[f]){
-									input = tr.ReadLine();
-									row = input.Split("	".ToCharArray());
-								}
-							}
-							SoundData2Test[TestI].Target = new double[]{Target};
-							SoundData2Test[TestI].Tag = f;
-							TestI++;
-						}
-					}
-					if ((Target==-1)&&(FlagTarget==1))
-						Target=1;
-					else if (FlagTarget==0)
-						Target++;
-					
-					tr.Close();
-				}else if (persentagesORtwoFiles==1){
-					
-					int[] trainIndex;
-					trainIndex = new int[learnSize[f]];
-					for (int i = 0; i < trainIndex.Length; i++) trainIndex[i] = i ;
-					
-					// create a writer and open the file
-					tr = rgFiles[f].OpenText();
-					input = tr.ReadLine();
-					string[] row = input.Split("	".ToCharArray());
-					Target = Convert.ToInt32(row[3]);
-					int Tag = Convert.ToInt32(row[4]);
-					
-					for (int i = 0; i < lines[f] ; i++) { // phonema ID
-						input = tr.ReadLine();
-						row = input.Split("	".ToCharArray());
-						int leng = 0;
-						for (int l = 0; l < row.Length; l++) {
-							if (row[l]=="")
-								continue;
-							else
-								leng++;
-						}
-
-						if (rgFiles[f].Name.Contains("Train"))
-						{  // go to treain group
-							SoundData2Learn[TrainI].Input = new double[rows[f],leng];
-							for (int r = 0; r < rows[f]; r++) {
-								for (int t = 0; t < row.Length ; t++) { // Search phnema
-									if (row[t]=="") continue;
-									SoundData2Learn[TrainI].Input[r,t] = factor * Convert.ToDouble(row[t]);
-								}
-								if ((r+1)<rows[f]){
-									input = tr.ReadLine();
-									row = input.Split("	".ToCharArray());
-								}
-							}
-							SoundData2Learn[TrainI].Target = new double[]{Target};
-							SoundData2Learn[TrainI].Tag = f;
-							TrainI++;
-							
-						}else{  // go to Test group
-							
+						}else{  // Test group
 							SoundData2Test[TestI].Input = new double[rows[f],leng];
 							for (int r = 0; r < rows[f]; r++) {
 								for (int t = 0; t < row.Length ; t++) { // Search phnema

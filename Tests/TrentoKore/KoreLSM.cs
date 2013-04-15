@@ -137,7 +137,7 @@ namespace Liquid_Detector.Tests.TrentoKore
 			                          (int) Convert.ToInt32(Math.Round(Param.detector.ReadOut_Unit_HiddenLayerSize * inputSize)),
 			                          1,0,ref Param);
 			
-			ML.initialization(ref Param);
+			ML.initialization(ref Param,0);
 			
 			
 			if (string.Compare(args[3],"test")==0){
