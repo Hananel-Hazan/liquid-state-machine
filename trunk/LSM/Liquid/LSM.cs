@@ -115,7 +115,7 @@ namespace Liquid
 			this.groupNames = new int[Param.detector.ReadOut_Unit.Length];
 			for (int i = 0; i < NN.Length; i++) {
 				this.NN[i] = new ReadOut_Detector(this.NetOutputSize,((int) Math.Round(this.NetOutputSize*Param.detector.ReadOut_Unit_HiddenLayerSize)),Param.detector.ReadOut_Unit_outputSize,i,ref Param);
-				NN[i].initialization(ref Param);
+				NN[i].initialization(ref Param,0);
 				this.groupNames[i] = i;
 			}
 			
@@ -467,19 +467,19 @@ namespace Liquid
 				else
 					tempdata[i].Target = new double[]{Param.detector.Readout_Negative};
 			}
-			return(Learn(ref Param, ref tempdata,0,1, groupNames));
+			return(Learn(ref Param, ref tempdata,0,1, groupNames,groupNames.Length));
 		}
 		
 		public double[] Learn(ref globalParam Param, ref globalParam.Data[] LearnData,int print,int repetition)
 		{
 			int[] detectors = new int[NN.Length];
 			for (int i = 0; i < detectors.Length; i++) detectors[i] = this.groupNames[i];
-			return Learn(ref Param, ref LearnData,print,repetition, detectors);
+			return Learn(ref Param, ref LearnData,print,repetition, detectors, groupNames.Length);
 			
 		}
 		
 		
-		public double Learn(ref globalParam Param, ref globalParam.Data[] LearnData,int print,int repetition, int Detectors)
+		public double Learn(ref globalParam Param, ref globalParam.Data[] LearnData,int print,int repetition, int Detectors,int NumOfGroups)
 		{
 			double LastReturnError = 0 ;
 			if (Param.networkParam.Liquid_Update_Sync_Or_ASync == 1)
@@ -511,7 +511,7 @@ namespace Liquid
 					LSM temp = this.returnRef();
 					// Training Detector BY Sliceing Time
 					NN[Detectors].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
-					                          ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0) ,ref Param);
+					                          ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag,NumOfGroups ,ref Param);
 //
 //						if (print==1){
 //							// ploting the activity of the liquid
@@ -533,7 +533,7 @@ namespace Liquid
 		}//--------------------------------------------------------------------
 		
 		
-		public double[] Learn(ref globalParam Param, ref globalParam.Data[] LearnData,int print,int repetition,int[] Detectors)
+		public double[] Learn(ref globalParam Param, ref globalParam.Data[] LearnData,int print,int repetition,int[] Detectors,int NumOfGroups)
 		{
 			if (Param.networkParam.Liquid_Update_Sync_Or_ASync == 1)
 				repetition = repetition * 10; // dont know why 4...
@@ -569,7 +569,7 @@ namespace Liquid
 						LSM temp = this.returnRef();
 						// Training Detector BY Sliceing Time
 						NN[Detectors[n]].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
-						                             ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0) ,ref Param);
+						                             ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag, NumOfGroups ,ref Param);
 
 						LiquidOutput_InputUnits_Learn = null;
 						LiquidOutput_OutputUnits_Learn = null;
@@ -674,13 +674,12 @@ namespace Liquid
 		}//--------------------------------------------------------------------
 		
 		
-		public double[] Learn_Multiple_Targets(ref globalParam Param, ref globalParam.Data[] LearnData, ref globalParam.Data[] TestData,int print)
+		public int MakeTargetinDB(ref globalParam Param, ref globalParam.Data[] LearnData, ref globalParam.Data[] TestData)
 		{
 			
 			groupNames = new int[1]{0};
 			for (int i = 0; i < LearnData.Length; i++) {
 				int flag = 0;
-				LearnData[i].Target = new double[]{LearnData[i].Tag};
 				for (int l = 0; l < groupNames.Length; l++) {
 					if (groupNames[l]==LearnData[i].Tag) { flag=1; break;}
 				}
@@ -691,18 +690,43 @@ namespace Liquid
 				}
 			}
 			
+			if (groupNames.Length == 2){
+				for (int i = 0; i < LearnData.Length ; i++){
+					if (LearnData[i].Tag==groupNames[0])
+						LearnData[i].Target = new double[]{1};
+					else
+						LearnData[i].Target = new double[]{-1};
+				}
+				for (int i = 0; i < TestData.Length ; i++){
+					if (TestData[i].Tag==groupNames[0])
+						TestData[i].Target = new double[]{1};
+					else
+						TestData[i].Target = new double[]{-1};
+				}
+				
+			}
+			
+			
+			return groupNames.Length;
+			
+			
+			
+		}//--------------------------------------------------------------------
+		
+		public double[] Learn_Multiple_Targets(ref globalParam Param, ref globalParam.Data[] LearnData,int print)
+		{
 			// init the Detector
 			if (groupNames.Length==2){
 				NN = new ReadOut_Detector[1];
 				this.NN[0] = new ReadOut_Detector(this.NetOutputSize,((int) Math.Round(this.NetOutputSize*Param.detector.ReadOut_Unit_HiddenLayerSize)),Param.detector.ReadOut_Unit_outputSize,0,ref Param);
-				NN[0].initialization(ref Param);
+				NN[0].initialization(ref Param,groupNames.Length);
 			}else{
 				NN = new ReadOut_Detector[Param.detector.ReadOut_Unit.Length*groupNames.Length];
 				int temp = 0;
 				for (int t = 0; t < groupNames.Length; t++) {
 					for (int i = 0; i < Param.detector.ReadOut_Unit.Length; i++) {
 						this.NN[temp] = new ReadOut_Detector(this.NetOutputSize,((int) Math.Round(this.NetOutputSize*Param.detector.ReadOut_Unit_HiddenLayerSize)),Param.detector.ReadOut_Unit_outputSize,i,ref Param);
-						NN[temp].initialization(ref Param);
+						NN[temp].initialization(ref Param,groupNames.Length);
 					}
 					temp++;
 				}
@@ -718,23 +742,7 @@ namespace Liquid
 				repetition = repetition * 2; // dont know why 4...
 			
 			for (int n = 0; n < NN.Length; n++){
-				
-				for (int i = 0; i < LearnData.Length; i++) {
-					if (LearnData[i].Tag==groupNames[n])
-						LearnData[i].Target = new double[]{Param.detector.Readout_Negative};
-					else
-						LearnData[i].Target = new double[]{1};
-				}
-				
-				for (int i = 0; i < TestData.Length; i++) {
-					if (TestData[i].Tag==groupNames[n])
-						TestData[i].Target = new double[]{Param.detector.Readout_Negative};
-					else
-						TestData[i].Target = new double[]{1};
-				}
-				
-				output[n] = this.Learn(ref Param,ref LearnData,print,repetition, n);
-				
+				output[n] = this.Learn(ref Param,ref LearnData,print,repetition, n,groupNames.Length);
 				NN[n].CleanCollectedData();
 			}
 			return output;
@@ -756,14 +764,18 @@ namespace Liquid
 				for (int vec = 0; vec < TestData.Length; vec++) {
 					double temp=0;
 					int count = 0;
-					for (int i = 0; i < Detector_Output[vec].Length ; i++) {
-						if (Detector_Output[vec][i] == 0) 
-							continue; // IMPORTENT!!!! 0 is not an answare!!!
-						temp+=Detector_Output[vec][i];
-						count++;
+					if (this.NN[detector].model==10){
+						
+					}else{
+						for (int i = 0; i < Detector_Output[vec].Length ; i++) {
+							if (Detector_Output[vec][i] == 0)
+								continue; // IMPORTENT!!!! 0 is not an answare!!!
+							temp+=Detector_Output[vec][i];
+							count++;
+						}
+						if (count>0)
+							output[vec,this.groupNames[detector]]  = temp/count;
 					}
-					if (count>0)
-					output[vec,this.groupNames[detector]]  = temp/count;
 				}
 			}
 			return output;
