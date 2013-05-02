@@ -60,22 +60,22 @@ namespace NeuronArch
 //		double inputLeft;
 		//----------------------------------------------------------------
 
-		public LIFmodle2(ref NeuronParametes Param)
+		public LIFmodle2(ref globalParam Param)
 		{
-			this.initTherashold = Param.Neuron_Threshold; // init value the Nueron shold reset this!
+			this.initTherashold = Param.neuronParam.Neuron_Threshold; // init value the Nueron shold reset this!
 			rand =  new Random();
 //			RandomA = rand.NextDouble();
 //			RandomB = 0;//rand.NextDouble();
-			this.init_decayRate = Param.decayFactor;
+			this.init_decayRate = Param.neuronParam.decayFactor;
 			this.reset(ref Param);
 		}
 
 		//----------------------------------------------------------------
-		override public void reset(ref NeuronParametes Param)
+		override public void reset(ref globalParam Param)
 		{
-			this.initV = Param.initV;
+			this.initV = Param.neuronParam.initV;
 			this.V = initV;
-			this.iniV_forRefactory = Param.initV+ Math.Abs(Param.initV*0.1);
+			this.iniV_forRefactory = Param.neuronParam.initV+ Math.Abs(Param.neuronParam.initV*0.1);
 			this.refactoryV = this.initV - 30;
 			this.therashold = this.initTherashold;
 			this.decayRate = this.init_decayRate;

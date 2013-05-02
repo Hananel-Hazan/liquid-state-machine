@@ -119,13 +119,14 @@ public class NeuronParametes
 	public double[] STDPMaxChange;
 	public int Active_STDP_rule;
 	
-	public int Randomize_initilaization;
 	public int Proportional_Threshold;
 	public double Neuron_Threshold_Proportion;
 	public double Neuron_Threshold;
 	public int Slideing_Threshold;
 	public int Random_Threshold_On_FullRest;
 	public double Random_Factor_Sliding_Treshold;
+	public int Randomize_initilaization_On_FullRest;
+	public int Randomize_initilaization_On_Reset;
 	
 	public void parsing(ref Dictionary<string, string> dictionary){
 		string temp;
@@ -150,10 +151,15 @@ public class NeuronParametes
 			Console.WriteLine("configuration-Active_STDP_rule");
 		Active_STDP_rule = Convert.ToInt32(temp);
 		
-		dictionary.TryGetValue("Randomize_initilaization",out temp);
+		dictionary.TryGetValue("Randomize_initilaization_On_FullRest",out temp);
 		if (string.IsNullOrEmpty(temp))
-			Console.WriteLine("configuration-Randomize_initilaization");
-		Randomize_initilaization = Convert.ToInt32(temp);
+			Console.WriteLine("configuration-Randomize_initilaization_On_FullRest");
+		Randomize_initilaization_On_FullRest = Convert.ToInt32(temp);
+		
+		dictionary.TryGetValue("Randomize_initilaization_On_Reset",out temp);
+		if (string.IsNullOrEmpty(temp))
+			Console.WriteLine("configuration-Randomize_initilaization_On_Reset");
+		Randomize_initilaization_On_Reset = Convert.ToInt32(temp);
 		
 		dictionary.TryGetValue("Random_Factor_Sliding_Treshold",out temp);
 		if (string.IsNullOrEmpty(temp))
@@ -364,7 +370,7 @@ public class NeuronParametes
 		}
 		if (Neuron_Firing_Rate_Max==0) Console.WriteLine("!!! Neuron Initilization = zero !!!");
 		Steps_Between_Two_Spikes =  2 + (int) Math.Round(((double)Steps_Between_Two_Spikes/(Neuron_Firing_Rate_Max-1)),0);
-		Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max = 0.5 * Neuron_Firing_Rate_Max;
+		Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max = 0.8 * Neuron_Firing_Rate_Max;
 		Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min = Math.Min(1,0.01 * Neuron_Firing_Rate_Max);
 		Neuron_STDP_Recommended_Firing_Rate_Max = 0.6 * Neuron_Firing_Rate_Max;
 		Neuron_STDP_Recommended_Firing_Rate_Min = 0.01 * Neuron_Firing_Rate_Max;
@@ -373,31 +379,33 @@ public class NeuronParametes
 		counterA=0;
 		int counterB = 0;
 		Steps_Between_Two_Spikes_In_Silence = -1;
-		if ((Slideing_Threshold>0)&&(Random_Factor_Sliding_Treshold>0)){
-			neu.Slideing_Threshold = Param.neuronParam.Slideing_Threshold;
-			neu.Nunit.initTherashold = Neuron_Threshold;
-			neu.FullReset(ref Param);
-//			plot = new double[one_Second];
-			do{
-				int[] dontcare = new int[3];
-				bool spike = neu.step(1,ref dontcare,ref Param);
-//				plot[i] = neu.Nunit.V;
-				if (spike){
-					counterB++;
-					flip=true;
-				}else
-					flip=false;
-				
-				if (flip){
-					Steps_Between_Two_Spikes_In_Silence+=counterA;
-					counterA=0;
-				}else{
-					counterA++;
-				}
-			}while(counterB<=10);
-			
-			Steps_Between_Two_Spikes_In_Silence = 2 + (int) Math.Round(((double)Steps_Between_Two_Spikes_In_Silence/counterB),0);
-		}
+//		if ((Slideing_Threshold>0)&&(Random_Factor_Sliding_Treshold>0)){
+//			neu.Slideing_Threshold = Param.neuronParam.Slideing_Threshold;
+//			neu.Nunit.initTherashold = Neuron_Threshold;
+//			neu.FullReset(ref Param);
+//			int counter = 0;
+////			plot = new double[one_Second];
+//			do{
+//				int[] dontcare = new int[3];
+//				bool spike = neu.step(counter,ref dontcare,ref Param);
+//				counter++;
+////				plot[i] = neu.Nunit.V;
+//				if (spike){
+//					counterB++;
+//					flip=true;
+//				}else
+//					flip=false;
+//				
+//				if (flip){
+//					Steps_Between_Two_Spikes_In_Silence+=counterA;
+//					counterA=0;
+//				}else{
+//					counterA++;
+//				}
+//			}while(counterB<=3);
+//			
+//			Steps_Between_Two_Spikes_In_Silence = 2 + (int) Math.Round(((double)Steps_Between_Two_Spikes_In_Silence/counterB),0);
+//		}
 		
 	}
 	
@@ -439,6 +447,8 @@ public class NetworkParm
 	public double Liquid_Weights_Resistend;
 	public int Neuron_propotional_weight_Update;
 	public int Neuron_propotional_weight_Initialize;
+	public int Neuron_Random_weight_Initialize;
+	
 	public double LSM_Max_Init_Weight_NegN;
 	public double LSM_Min_Init_Weight_NegN;
 	public double LSM_Max_Init_Weight_PosN;
@@ -478,6 +488,11 @@ public class NetworkParm
 		for (int i = 0; i < time; i++) {
 			Liquid_Architectures[i] = Convert.ToInt32(words[i]);
 		}
+		
+		dictionary.TryGetValue("Neuron_Random_weight_Initialize",out temp);
+		if (string.IsNullOrEmpty(temp))
+			Console.WriteLine("Neuron_Random_weight_Initialize");
+		Neuron_Random_weight_Initialize = Convert.ToInt32(temp);
 		
 		dictionary.TryGetValue("Methods_Of_Liquid_Input_Units",out temp);
 		if (string.IsNullOrEmpty(temp))
@@ -1186,7 +1201,7 @@ public class globalParam
 		neuronParam.initialization(ref deme);
 		networkParam.initialization(ref recorentNet,ref rnd,neuronParam.Neuron_Model);
 		if (input2liquid.LSM_Ratio_Of_Input_Interval[1]<0)
-			input2liquid.LSM_Ratio_Of_Input_Interval[1] = neuronParam.Steps_Between_Two_Spikes;
+			input2liquid.LSM_Ratio_Of_Input_Interval[1] = (-1*input2liquid.LSM_Ratio_Of_Input_Interval[1])*neuronParam.Steps_Between_Two_Spikes;
 		
 	}//----------------------------------------------------------------------------------
 	
