@@ -171,7 +171,7 @@ namespace Liquid
 			if (Param.detector.LSM_Adjustment_Time_at_Beginning>0)
 				Liquid_Run_Time +=Param.detector.LSM_Adjustment_Time_at_Beginning;
 			if (Param.detector.LSM_Adjustment_Time_at_Ending>0)
-				Liquid_Run_Time +=Param.detector.LSM_Adjustment_Time_at_Ending;
+				Liquid_Run_Time += Param.detector.LSM_Adjustment_Time_at_Ending;
 			
 			while(Liquid_Run_Time % Param.detector.LSM_1sec_interval!=0){
 				Liquid_Run_Time++;
@@ -409,7 +409,7 @@ namespace Liquid
 			Vector.Input = new double[1,inputLengh];
 			Vector.Target = new double[1];
 			Console.WriteLine("Start Silent tuning...");
-			if ((Param.neuronParam.Slideing_Threshold>0)&&(Param.neuronParam.Active_STDP_rule==1)
+			if (((Param.neuronParam.Slideing_Threshold>0)||(Param.neuronParam.Active_STDP_rule==1))
 			    &&(maxRepeteration>0)){
 				int repet =0;
 				bool[] LiquidOutput_InputUnits_Learn = new bool[0];
@@ -417,12 +417,13 @@ namespace Liquid
 				double[,] outputNeurons_Frequency_Learn = new double[0,0];
 				bool[,] inputSignal = new bool[0,0];
 				while(true){
+					if (repet==maxRepeteration) break;
 					this.reset(ref Param);
+					
 					changes = this.run_on_vector( ref Vector , out LiquidOutput_OutputUnits_Learn,
 					                             out LiquidOutput_InputUnits_Learn,out outputNeurons_Frequency_Learn,
 					                             out inputSignal, 1, 0.0,1,ref Param);
 					Console.WriteLine("{3}) changes: LTD={0} , LTP={1} , threshold={2}", changes[0] , changes[1],changes[2],repet);
-					if (repet==maxRepeteration) break;
 					
 					if (print==1){
 						// ploting the activity of the liquid
@@ -482,9 +483,10 @@ namespace Liquid
 		public double Learn(ref globalParam Param, ref globalParam.Data[] LearnData,int print,int repetition, int Detectors,int NumOfGroups)
 		{
 			double LastReturnError = 0 ;
+			int MaxActivity = 0;
 			if (Param.networkParam.Liquid_Update_Sync_Or_ASync == 1)
 				repetition = repetition * 10; // dont know why 4...
-			if (Param.neuronParam.Randomize_initilaization == 1)
+			if (Param.neuronParam.Randomize_initilaization_On_Reset == 1)
 				repetition = repetition * 4; // dont know why 4...
 			
 			for (int  repet = 0; repet < repetition ; repet++) {
@@ -509,9 +511,15 @@ namespace Liquid
 					this.reset(ref Param);
 					
 					LSM temp = this.returnRef();
+					int tempMaxActivity =0;
 					// Training Detector BY Sliceing Time
-					NN[Detectors].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
-					                          ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag,NumOfGroups ,ref Param);
+					tempMaxActivity = NN[Detectors].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
+					                          ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag,
+					                          NumOfGroups,ref Param);
+					
+					if (tempMaxActivity>MaxActivity) 
+						MaxActivity = tempMaxActivity;
+					
 //
 //						if (print==1){
 //							// ploting the activity of the liquid
@@ -526,7 +534,7 @@ namespace Liquid
 					inputSignal = null;
 				}
 			}
-			NN[Detectors].StratTrain(ref LastReturnError,ref Param);
+			NN[Detectors].StratTrain(MaxActivity, ref LastReturnError,ref Param);
 			NN[Detectors].CleanCollectedData();
 			
 			return LastReturnError;
@@ -537,13 +545,14 @@ namespace Liquid
 		{
 			if (Param.networkParam.Liquid_Update_Sync_Or_ASync == 1)
 				repetition = repetition * 10; // dont know why 4...
-			if (Param.neuronParam.Randomize_initilaization == 1)
+			if (Param.neuronParam.Randomize_initilaization_On_Reset == 1)
 				repetition = repetition * 4; // dont know why 4...
 			
 			double[] LastReturnError = new double[Detectors.Length];
 			
 			
 			for (int n = 0; n < Detectors.Length; n++){
+				int MaxActivity = 0;
 				
 				for (int  repet = 0; repet < repetition ; repet++) {
 					
@@ -568,8 +577,11 @@ namespace Liquid
 						
 						LSM temp = this.returnRef();
 						// Training Detector BY Sliceing Time
-						NN[Detectors[n]].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
+						int tempMaxActivity = NN[Detectors[n]].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
 						                             ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag, NumOfGroups ,ref Param);
+						
+						if (tempMaxActivity>MaxActivity) 
+							MaxActivity = tempMaxActivity;
 
 						LiquidOutput_InputUnits_Learn = null;
 						LiquidOutput_OutputUnits_Learn = null;
@@ -577,7 +589,7 @@ namespace Liquid
 						inputSignal = null;
 					}
 				}
-				NN[Detectors[n]].StratTrain(ref LastReturnError[n],ref Param);
+				NN[Detectors[n]].StratTrain(MaxActivity, ref LastReturnError[n],ref Param);
 				NN[Detectors[n]].CleanCollectedData();
 			}
 			
@@ -765,7 +777,12 @@ namespace Liquid
 					double temp=0;
 					int count = 0;
 					if (this.NN[detector].model==10){
-						
+						double max = 0;
+						for (int g = 0; g < Detector_Output[vec].Length; g++)
+							if (Detector_Output[vec][g]> max){
+								output[vec,detector] = g;
+								max = Detector_Output[vec][g];
+							}
 					}else{
 						for (int i = 0; i < Detector_Output[vec].Length ; i++) {
 							if (Detector_Output[vec][i] == 0)

@@ -45,7 +45,7 @@ namespace NeuronArch
 	[Serializable()]
 	public abstract class Unit
 	{
-		virtual  public void reset(ref NeuronParametes Param){}
+		virtual  public void reset(ref globalParam Param){}
 		virtual  public bool step(ref double output,double InternalInput,double ExternalIntput){ return false; }
 		public double V;
 		public double therashold;

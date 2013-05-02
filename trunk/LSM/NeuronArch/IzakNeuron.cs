@@ -54,9 +54,9 @@ namespace NeuronArch
 		
 		//----------------------------------------------------------------
 
-		public IzakNeuron(ref NeuronParametes Param)
+		public IzakNeuron(ref globalParam Param)
 		{
-			this.initTherashold = Param.Neuron_Threshold; // init value the Nueron shold reset this!
+			this.initTherashold = Param.neuronParam.Neuron_Threshold; // init value the Nueron shold reset this!
 			this.reset(ref Param);
 		}
 
@@ -85,7 +85,7 @@ namespace NeuronArch
      -0.02     -1       -60     8      80       % inhibition-induced spiking
      -0.026    -1       -45     0      80       % inhibition-induced bursting
 		 */
-		override public void reset(ref NeuronParametes Param)
+		override public void reset(ref globalParam Param)
 		{
 			this.V = -65;
 			this.a = 0.01;

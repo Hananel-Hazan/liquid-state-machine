@@ -50,21 +50,21 @@ namespace NeuronArch
 		public double Output,Decay;
 		double spike;
 		
-		public McCulloch_Pitts(ref NeuronParametes Param)
+		public McCulloch_Pitts(ref globalParam Param)
 		{
-			this.initTherashold = Param.Neuron_Threshold; // init value the Nueron shold reset this!
+			this.initTherashold = Param.neuronParam.Neuron_Threshold; // init value the Nueron shold reset this!
 			this.reset(ref Param);
 		}
 		//----------------------------------------------------------------
 		
-		override public void reset(ref NeuronParametes Param)
+		override public void reset(ref globalParam Param)
 		{
-			this.initV =  Param.initV;
+			this.initV =  Param.neuronParam.initV;
 			this.V = this.initV;
 			this.therashold = this.initTherashold;
 			this.Output  = 0 ;
-			this.spike = Param.Int_Neuron_Spike;
-			this.Decay = Param.decayFactor;
+			this.spike = Param.neuronParam.Int_Neuron_Spike;
+			this.Decay = Param.neuronParam.decayFactor;
 //			this.flag = 0;
 //			this.flag2 =0;
 
