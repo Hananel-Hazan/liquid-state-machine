@@ -142,11 +142,8 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 								LSM_Net.changeTheresholdForInputNeurons(ref Param);
 							
 							LSM_Net.FullReset(ref Param);
-//						int[] temp = Param.input2liquid.LSM_Ratio_Of_Input_Interval;
-//						Param.input2liquid.LSM_Ratio_Of_Input_Interval[1] = 100;
-//							LSM_Net.Dump_Network_Weights("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
-//							LSM_Net.SilentTuneLiquid(ref Param,Param.detector.LSM_1sec_interval*1000,Param.test_Param.Silent_Tuning,0);
-//						Param.input2liquid.LSM_Ratio_Of_Input_Interval[1] = temp[1];
+							LSM_Net.Dump_Network_Weights("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
+							LSM_Net.SilentTuneLiquid(ref Param,Param.detector.LSM_1sec_interval*1000,Param.test_Param.Silent_Tuning,0);
 							LSM_Net.Dump_Network_Weights("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
 							LSM_Net.InputTuning(ref Param,ref SoundData_to_Learn,0,Param.test_Param.Input_Tuning);
 							LSM_Net.Dump_Network_Weights("Weights_arc_"+Param.networkParam.Liquid_Architectures[arc].ToString()+" Directory "+DirName);
@@ -159,7 +156,10 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							int NumOfGroups=0;
 							Console.WriteLine("Trainning Readout Units");
 							NumOfGroups = LSM_Net.MakeTargetinDB(ref Param, ref SoundData_to_Learn, ref SoundData_to_Test);
-							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Learn,0);
+							globalParam.Data[] T_Data = SoundData_to_Learn;
+							Param.AddNoiseToData(ref Param,ref T_Data,3,0.1);
+//							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Learn,0);
+							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref T_Data,0);
 							
 							
 							// Testing //
@@ -180,6 +180,8 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 								}else{
 									Console.WriteLine("Testing Test Data... ");
 									Test_Data = SoundData_to_Test;
+//									Test_Data = SoundData_to_Learn;
+									Param.AddNoiseToData(ref Param,ref Test_Data,2,0.1);
 									DetectorOutput = LSM_Net.Test_Multiple_Targets(ref Param,ref Test_Data,0,1,0.0);
 									currentTest = 1;
 								}

@@ -51,6 +51,7 @@ public class Input2liquid
 	public int[] LSM_Ratio_Of_Input_Interval;
 	public int silence_or_repeted_Input_between_ratio;
 	public int Looping_Input;
+	public int[] Increase_Input_by_Input_Randomization;
 	public double[] is_a_live_signal;
 	public double[] inverse_Signal;
 	
@@ -91,6 +92,16 @@ public class Input2liquid
 		inverse_Signal = new double[words.Length];
 		inverse_Signal[0] = Convert.ToDouble(words[0]);
 		inverse_Signal[1] = Convert.ToDouble(words[1]);
+		
+		
+		dictionary.TryGetValue("Increase_Input_by_Input_Randomization",out temp);
+		if (string.IsNullOrEmpty(temp))
+			Console.WriteLine("configuration Increase_Input_by_Input_Randomization");
+		words = temp.Split(',');
+		Increase_Input_by_Input_Randomization = new int[words.Length];
+		Increase_Input_by_Input_Randomization[0] = Convert.ToInt32(words[0]);
+		Increase_Input_by_Input_Randomization[1] = Convert.ToInt32(words[1]);
+		
 	}
 }
 //-----------------------------------------------------------------------------------
@@ -1329,10 +1340,10 @@ public class globalParam
 	public void AddNoiseToData(ref globalParam Param, ref globalParam.Data[] Data, double increaseSize,double noise){
 		
 		/// <summary>
-		/// 
+		/// Add Noise to dataset
 		/// </summary>
 		/// <param name="Noise">1=100%,1=0% Noise add to the orginal input</param>
-		/// <param name="increaseSize">By how much to incress the data set?</param>
+		/// <param name="increaseSize">By how much to incress the data set? the value MUST be bigger then one because the first is copy of the original</param>
 		
 		if (increaseSize==0) return;
 		globalParam.Data[] returnData = new globalParam.Data[(int) Math.Round(Data.Length * increaseSize)];
@@ -1342,7 +1353,7 @@ public class globalParam
 			for (int f = 0; f < increaseSize ; f++) {
 				returnData[count].Input = new double[Data[i].Input.GetLength(0),Data[i].Input.GetLength(1)];
 				returnData[count].Target = new double[Data[i].Target.Length];
-				if (f==0){
+				if (f==0){ // first one is the copy of the original
 					for (int inputI = 0; inputI < Data[i].Input.GetLength(0); inputI++)
 						for (int inputJ = 0; inputJ < Data[i].Input.GetLength(1); inputJ++)
 							returnData[count].Input[inputI,inputJ] = Data[i].Input[inputI,inputJ];

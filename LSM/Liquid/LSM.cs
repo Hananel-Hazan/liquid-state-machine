@@ -489,6 +489,9 @@ namespace Liquid
 			if (Param.neuronParam.Randomize_initilaization_On_Reset == 1)
 				repetition = repetition * 4; // dont know why 4...
 			
+			if (Param.input2liquid.Increase_Input_by_Input_Randomization[0]==1)
+				Param.AddNoiseToData(ref Param,ref LearnData,2,Param.input2liquid.Increase_Input_by_Input_Randomization[1]/10);
+			
 			for (int  repet = 0; repet < repetition ; repet++) {
 				
 				Param.RandomaizeData(ref LearnData);
