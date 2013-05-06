@@ -354,19 +354,16 @@ namespace Neurons
 						}
 					}
 				}
+				// STDP - V.1 - END
 			}
 			
 			this.SlidingThreshold_Uppdate_Flag = true;
-			
-			// STDP - V.1 - END
 			if ((SlidingThreshold_Uppdate_Flag)&&(this.Slideing_Threshold==1)){
 				if (this.Number_Fireing_in_Second>Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max){
 					this.Nunit.therashold += RandomElemnt_double[clockPlace];
 					flag[2]++;
 					SlidingThreshold_Uppdate_Flag = false;
-				}else
-//					if ((this.Number_Fireing_in_Second==0)&&(this.Nunit.therashold>this.Nunit.initV)){
-					if (this.Number_Fireing_in_Second<=Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min){
+				}else if (this.Number_Fireing_in_Second<=Param.neuronParam.Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min){
 					this.Nunit.therashold -= RandomElemnt_double[clockPlace];
 					flag[2]++;
 					SlidingThreshold_Uppdate_Flag = false;

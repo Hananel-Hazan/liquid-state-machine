@@ -67,6 +67,8 @@ namespace NeuronArch
 //			RandomA = rand.NextDouble();
 //			RandomB = 0;//rand.NextDouble();
 			this.init_decayRate = Param.neuronParam.decayFactor;
+			this.refactoryV = this.initV - 30;
+			
 			this.reset(ref Param);
 		}
 
@@ -76,7 +78,6 @@ namespace NeuronArch
 			this.initV = Param.neuronParam.initV;
 			this.V = initV;
 			this.iniV_forRefactory = Param.neuronParam.initV+ Math.Abs(Param.neuronParam.initV*0.1);
-			this.refactoryV = this.initV - 30;
 			this.therashold = this.initTherashold;
 			this.decayRate = this.init_decayRate;
 			

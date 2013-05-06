@@ -54,7 +54,7 @@ namespace NeuronArch
 		{
 			this.initTherashold = Param.neuronParam.Neuron_Threshold;
 			this.init_decayRate = Param.neuronParam.decayFactor;
-			this.initV = Param.neuronParam.initV;
+			this.initV = Param.neuronParam.initV + (Param.rndA.NextDouble(ref Param,-20,+60));
 			this.refractoryV = this.initV + (Param.rndA.NextDouble(ref Param,-20,0));
 			this.reset(ref Param);
 		}
