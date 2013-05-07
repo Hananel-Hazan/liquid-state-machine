@@ -259,7 +259,7 @@ public class ReadOut_Detector
 		if (tempDetectorInputSize > DetectorInputSize)
 			DetectorInputSize = tempDetectorInputSize;
 		
-		int Liquid_Run_Time = LSM.TimeInitialization(Input_Length,ref Param);
+		int Liquid_Run_Time = LSM.TimeInitialization(Input_Length,out Window_Size,ref Param);
 		int windowSize = Window_Size +
 			Param.detector.ReadoutU_Disctance_Between_Windows +
 			Param.detector.ReadoutU_Window_Shifting;
@@ -299,15 +299,7 @@ public class ReadOut_Detector
 
 	public void DidWindowChange(ref Liquid.LSM LSM,int Input_Length,int NumOfGroups, ref globalParam Param){
 		
-		Window_Size = Param.detector.ReadoutU_Window_Size;
-		if (Param.detector.ReadoutU_Window_Size<=0){
-			if (Param.neuronParam.Steps_Between_Two_Spikes_In_Silence>0)
-				Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes_In_Silence;
-			else
-				Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
-		}
-		
-		int Liquid_Run_Time = LSM.TimeInitialization(Input_Length,ref Param);
+		int Liquid_Run_Time = LSM.TimeInitialization(Input_Length,out Window_Size,ref Param);
 		
 		int HowManyWindows = Param.detector.ReadoutU_How_Many_Windows;
 		if (Param.detector.ReadoutU_How_Many_Windows==0)

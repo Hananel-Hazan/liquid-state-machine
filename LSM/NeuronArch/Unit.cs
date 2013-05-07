@@ -51,8 +51,10 @@ namespace NeuronArch
 		public double therashold;
 		public double initTherashold;
 		public double initV;
-		public double init_decayRate;
-		public double decayRate;
+		public double init_FiringDecayFactor;
+		public double init_RefractoryDecayFactor;
+		public double FiringDecayFactor;
+		public double RefractoryDecayFactor;
 		public bool internal_Refactory;
 	}
 	

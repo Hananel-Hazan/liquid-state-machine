@@ -115,7 +115,8 @@ public class NeuronParametes
 	public double Int_Neuron_Spike;
 	public double Ext_Inp_Neuron_Spike;
 	public double initV;
-	public double decayFactor;
+	public double FiringDecayFactor;
+	public double RefractoryDecayFactor;
 	public double Neuron_Firing_Rate_Max,
 	Neuron_Slideing_Threshold_Recommended_Firing_Rate_Max,Neuron_Slideing_Threshold_Recommended_Firing_Rate_Min,
 	Neuron_STDP_Recommended_Firing_Rate_Max,Neuron_STDP_Recommended_Firing_Rate_Min;
@@ -204,10 +205,15 @@ public class NeuronParametes
 		
 		if (Neuron_Model==1){
 			
-			dictionary.TryGetValue("LIF.decayFactor",out temp);
+			dictionary.TryGetValue("LIF.FiringDecayFactor",out temp);
 			if (string.IsNullOrEmpty(temp))
-				Console.WriteLine("configuration-decayFactor");
-			decayFactor = Convert.ToDouble(temp);
+				Console.WriteLine("configuration-FiringDecayFactor");
+			FiringDecayFactor = Convert.ToDouble(temp);
+			
+			dictionary.TryGetValue("LIF.RefractoryDecayFactor",out temp);
+			if (string.IsNullOrEmpty(temp))
+				Console.WriteLine("configuration-RefractoryDecayFactor");
+			RefractoryDecayFactor = Convert.ToDouble(temp);
 			
 			dictionary.TryGetValue("LIF.Proportional_Threshold",out temp);
 			if (string.IsNullOrEmpty(temp))
@@ -236,10 +242,15 @@ public class NeuronParametes
 			
 		}else if (Neuron_Model==2) {
 			
-			dictionary.TryGetValue("Izhikevich.decayFactor",out temp);
+			dictionary.TryGetValue("Izhikevich.FiringDecayFactor",out temp);
 			if (string.IsNullOrEmpty(temp))
-				Console.WriteLine("configuration-Izhikevich.decayFactor");
-			decayFactor = Convert.ToDouble(temp);
+				Console.WriteLine("configuration-Izhikevich.FiringDecayFactor");
+			FiringDecayFactor = Convert.ToDouble(temp);
+			
+			dictionary.TryGetValue("Izhikevich.RefractoryDecayFactor",out temp);
+			if (string.IsNullOrEmpty(temp))
+				Console.WriteLine("configuration-Izhikevich.RefractoryDecayFactor");
+			RefractoryDecayFactor = Convert.ToDouble(temp);
 			
 			dictionary.TryGetValue("Izhikevich.Proportional_Threshold",out temp);
 			if (string.IsNullOrEmpty(temp))
@@ -268,11 +279,16 @@ public class NeuronParametes
 			
 		}else if (Neuron_Model==3) {
 			
-			dictionary.TryGetValue("LIF-H.decayFactor",out temp);
+			dictionary.TryGetValue("LIF-H.FiringDecayFactor",out temp);
 			if (string.IsNullOrEmpty(temp))
 				Console.WriteLine("configuration-LIF-H.decayFactor");
-			decayFactor = Convert.ToDouble(temp);
+			FiringDecayFactor = Convert.ToDouble(temp);
 			
+			dictionary.TryGetValue("LIF-H.FiringDecayFactor",out temp);
+			if (string.IsNullOrEmpty(temp))
+				Console.WriteLine("configuration-LIF-H.RefractoryDecayFactor");
+			RefractoryDecayFactor = Convert.ToDouble(temp);
+						
 			dictionary.TryGetValue("LIF-H.Proportional_Threshold",out temp);
 			if (string.IsNullOrEmpty(temp))
 				Console.WriteLine("configuration-LIF-H.Proportional_Threshold");
@@ -303,7 +319,12 @@ public class NeuronParametes
 			dictionary.TryGetValue("McCulloch-Pitts.decayFactor",out temp);
 			if (string.IsNullOrEmpty(temp))
 				Console.WriteLine("configuration-McCulloch-Pitts.decayFactor");
-			decayFactor = Convert.ToDouble(temp);
+			FiringDecayFactor = Convert.ToDouble(temp);
+			
+			dictionary.TryGetValue("McCulloch-Pitts.FiringDecayFactor",out temp);
+			if (string.IsNullOrEmpty(temp))
+				Console.WriteLine("configuration-McCulloch-Pitts.RefractoryDecayFactor");
+			RefractoryDecayFactor = Convert.ToDouble(temp);
 			
 			dictionary.TryGetValue("McCulloch-Pitts.Proportional_Threshold",out temp);
 			if (string.IsNullOrEmpty(temp))
@@ -1337,7 +1358,63 @@ public class globalParam
 	}//----------------------------------------------------------------------------------
 	
 	
-	public void AddNoiseToData(ref globalParam Param, ref globalParam.Data[] Data, double increaseSize,double noise){
+	public void AddNoiseToData_Y_axis(ref globalParam Param, ref globalParam.Data[] Data, double increaseSize,double noise){
+		
+		/// <summary>
+		/// Add Noise to dataset
+		/// </summary>
+		/// <param name="Noise">1=100%,1=0% Noise add to the orginal input</param>
+		/// <param name="increaseSize">By how much to incress the data set? the value MUST be bigger then one because the first is copy of the original</param>
+		
+		if (increaseSize==0) return;
+		globalParam.Data[] returnData = new globalParam.Data[(int) Math.Round(Data.Length * increaseSize)];
+		
+		int count=0;
+		for (int i = 0; i < Data.Length; i++) {
+			for (int f = 0; f < increaseSize ; f++) {
+				returnData[count].Input = new double[Data[i].Input.GetLength(0),Data[i].Input.GetLength(1)];
+				returnData[count].Target = new double[Data[i].Target.Length];
+				if (f==0){ // first one is the copy of the original
+					for (int inputI = 0; inputI < Data[i].Input.GetLength(0); inputI++)
+						for (int inputJ = 0; inputJ < Data[i].Input.GetLength(1); inputJ++)
+							returnData[count].Input[inputI,inputJ] = Data[i].Input[inputI,inputJ];
+					returnData[count].Tag = Data[i].Tag;
+					for (int inputI = 0; inputI < Data[i].Target.Length ; inputI++)
+						returnData[count].Target[inputI] = Data[i].Target[inputI];
+				}else{
+					for (int inputI = 0; inputI < Data[i].Input.GetLength(0); inputI++) {
+						for (int inputJ = 0; inputJ < Data[i].Input.GetLength(1); inputJ++) {
+							double temp = rndA.NextDouble(ref Param,0,1);
+							if (temp<noise){
+								temp = Data[i].Input[inputI,inputJ] * rndA.NextDouble(ref Param,0,0.1);
+								
+								if(rndA.NextDouble(ref Param,0,1)<0.5){
+									if (returnData[count].Input[inputI,inputJ] + temp > 200)
+										returnData[count].Input[inputI,inputJ] -= temp;
+									else
+										returnData[count].Input[inputI,inputJ] += temp;
+								}else{
+									if (returnData[count].Input[inputI,inputJ] - temp < -200)
+										returnData[count].Input[inputI,inputJ] += temp;
+									else
+										returnData[count].Input[inputI,inputJ] -= temp;
+								}
+							}else
+								returnData[count].Input[inputI,inputJ] = Data[i].Input[inputI,inputJ];
+						}
+					}
+					returnData[count].Tag = Data[i].Tag;
+					for (int inputI = 0; inputI < Data[i].Target.Length ; inputI++)
+						returnData[count].Target[inputI] = Data[i].Target[inputI];
+				}
+				count++;
+			}
+		}
+		Data = returnData;
+	}//----------------------------------------------------------------------------------
+	
+	
+	public void AddNoiseToData_X_axis(ref globalParam Param, ref globalParam.Data[] Data, double increaseSize,double noise){
 		
 		/// <summary>
 		/// Add Noise to dataset

@@ -66,7 +66,7 @@ namespace NeuronArch
 			rand =  new Random();
 //			RandomA = rand.NextDouble();
 //			RandomB = 0;//rand.NextDouble();
-			this.init_decayRate = Param.neuronParam.decayFactor;
+			this.init_FiringDecayFactor = Param.neuronParam.FiringDecayFactor;
 			this.refactoryV = this.initV - 30;
 			
 			this.reset(ref Param);
@@ -79,7 +79,7 @@ namespace NeuronArch
 			this.V = initV;
 			this.iniV_forRefactory = Param.neuronParam.initV+ Math.Abs(Param.neuronParam.initV*0.1);
 			this.therashold = this.initTherashold;
-			this.decayRate = this.init_decayRate;
+			this.FiringDecayFactor = this.init_FiringDecayFactor;
 			
 			this.energy = 0.9; // start on 1=100% energy
 			this.internal_Refactory = false;
@@ -100,7 +100,7 @@ namespace NeuronArch
 			
 			if (internal_Refactory) {// Input + Decay
 				// Refactoring
-				this.V += 1 + (this.energy * this.decayRate * (this.initV - this.V )) ;
+				this.V += 1 + (this.energy * this.FiringDecayFactor * (this.initV - this.V )) ;
 				
 				if (this.V >= this.initV)
 					internal_Refactory = false;
@@ -116,7 +116,7 @@ namespace NeuronArch
 //				if (this.energy_fact<100) this.energy_fact*=1.15;
 //				if ( this.energy<=0) this.energy=0;
 					if (this.energy>0)
-						this.energy -= (1-this.energy) *this.decayRate;
+						this.energy -= (1-this.energy) *this.FiringDecayFactor;
 				}else{
 //					double tempInput=InternalInput+ExternalIntput;
 //					if (tempInput!=0){
@@ -130,12 +130,12 @@ namespace NeuronArch
 //					this.V +=  temp + (this.decayRate * (this.initV - this.V));
 //					this.V +=  temp + ((1-this.energy)*(this.decayRate * (this.initV - this.V)));
 //						this.V +=  (this.decayRate * (this.initV - this.V));
-					this.V += (InternalInput+ExternalIntput) + (this.decayRate * (this.initV - this.V));
+					this.V += (InternalInput+ExternalIntput) + (this.FiringDecayFactor * (this.initV - this.V));
 					
 //					this.energy+= this.energy*this.refactoryRate;
 //					if (this.energy_fact>0) this.energy_fact/=2.15;
 					if (this.energy<1)
-						this.energy += (1-this.energy)*this.decayRate;
+						this.energy += (1-this.energy)*this.FiringDecayFactor;
 //					}
 				}
 			}

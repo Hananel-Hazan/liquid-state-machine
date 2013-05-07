@@ -157,9 +157,9 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							Console.WriteLine("Trainning Readout Units");
 							NumOfGroups = LSM_Net.MakeTargetinDB(ref Param, ref SoundData_to_Learn, ref SoundData_to_Test);
 							globalParam.Data[] T_Data = SoundData_to_Learn;
-							Param.AddNoiseToData(ref Param,ref T_Data,3,0.1);
+//							Param.AddNoiseToData_Y_axis(ref Param,ref T_Data,3,0.1);
 //							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Learn,0);
-							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref T_Data,0);
+							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref T_Data,1);
 							
 							
 							// Testing //
@@ -181,7 +181,7 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 									Console.WriteLine("Testing Test Data... ");
 									Test_Data = SoundData_to_Test;
 //									Test_Data = SoundData_to_Learn;
-									Param.AddNoiseToData(ref Param,ref Test_Data,2,0.1);
+									Param.AddNoiseToData_Y_axis(ref Param,ref Test_Data,2,0.1);
 									DetectorOutput = LSM_Net.Test_Multiple_Targets(ref Param,ref Test_Data,0,1,0.0);
 									currentTest = 1;
 								}

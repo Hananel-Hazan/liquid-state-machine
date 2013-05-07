@@ -64,7 +64,7 @@ namespace NeuronArch
 			this.therashold = this.initTherashold;
 			this.Output  = 0 ;
 			this.spike = Param.neuronParam.Int_Neuron_Spike;
-			this.Decay = Param.neuronParam.decayFactor;
+			this.Decay = Param.neuronParam.FiringDecayFactor;
 //			this.flag = 0;
 //			this.flag2 =0;
 
