@@ -117,9 +117,12 @@ namespace Neurons
 				this.RandomElemnt_double[i] = Param.rnd.NextDouble()*Param.neuronParam.Random_Factor_Sliding_Treshold;
 			this.FirstThreshold = Param.rndA.NextDouble(ref Param,Nunit.initV+1, Param.neuronParam.Neuron_Threshold+10);
 			this.FirstVolt = Param.rndA.NextDouble(ref Param, Param.neuronParam.initV+1, Param.neuronParam.Neuron_Threshold);
-			Nunit.init_decayRate = Param.neuronParam.decayFactor + (Param.rndA.NextDouble(ref Param,-0.2,0.2));
-			if (Nunit.init_decayRate<=0)
-				Nunit.init_decayRate = 0.01;
+			Nunit.init_RefractoryDecayFactor = Param.neuronParam.RefractoryDecayFactor + (Param.rndA.NextDouble(ref Param,-0.2,0.2));
+			Nunit.init_FiringDecayFactor = Param.neuronParam.FiringDecayFactor + (Param.rndA.NextDouble(ref Param,-0.2,0.2));
+			if (Nunit.init_RefractoryDecayFactor<=0)
+				Nunit.init_RefractoryDecayFactor = 0.01;
+			if (Nunit.init_FiringDecayFactor<=0)
+				Nunit.init_FiringDecayFactor = 0.01;
 			
 			this.FullReset(ref Param);
 			

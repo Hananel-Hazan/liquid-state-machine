@@ -53,7 +53,8 @@ namespace NeuronArch
 		public LIFNeuron(ref globalParam Param)
 		{
 			this.initTherashold = Param.neuronParam.Neuron_Threshold;
-			this.init_decayRate = Param.neuronParam.decayFactor;
+			this.init_FiringDecayFactor = Param.neuronParam.FiringDecayFactor;
+			this.init_RefractoryDecayFactor = Param.neuronParam.RefractoryDecayFactor;
 			this.initV = Param.neuronParam.initV + (Param.rndA.NextDouble(ref Param,-20,+60));
 			this.refractoryV = this.initV + (Param.rndA.NextDouble(ref Param,-20,0));
 			this.reset(ref Param);
@@ -63,7 +64,8 @@ namespace NeuronArch
 		override public void reset(ref globalParam Param)
 		{
 			this.V = initV;
-			this.decayRate = this.init_decayRate ;
+			this.FiringDecayFactor = this.init_FiringDecayFactor ;
+			this.RefractoryDecayFactor = this.init_RefractoryDecayFactor;
 			this.therashold = this.initTherashold;
 			this.Output = 0;
 			this.internal_Refactory = false;
@@ -77,7 +79,7 @@ namespace NeuronArch
 			
 			if (internal_Refactory) {// Input + Decay
 				// Refactoring
-				this.V += 1 + (this.decayRate * (this.initV - this.V )) ;
+				this.V += 1 + (this.RefractoryDecayFactor * (this.initV - this.V )) ;
 				if (this.V >= this.initV)
 					internal_Refactory = false;
 			}else{
@@ -86,7 +88,7 @@ namespace NeuronArch
 					this.V = this.refractoryV;
 					internal_Refactory = true;
 				}else{
-					this.V +=  (InternalInput+ExternalIntput) + (this.decayRate * (this.initV - this.V));
+					this.V +=  (InternalInput+ExternalIntput) + (this.FiringDecayFactor * (this.initV - this.V));
 				}
 			}
 			retuenV = this.V;

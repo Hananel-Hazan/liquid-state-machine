@@ -122,11 +122,16 @@ namespace Liquid
 			// finish the Detector
 		}//--------------------------------------------------------------------
 		
-		public int TimeInitialization(int Input_Length, ref globalParam Param)
+		public int TimeInitialization(int Input_Length,out int Window_Size, ref globalParam Param)
 		{
-			int Window_Size = Param.detector.ReadoutU_Window_Size;
-			if (Param.detector.ReadoutU_Window_Size<=0)
-				Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
+			Window_Size = Param.detector.ReadoutU_Window_Size;
+			
+			if (Window_Size<=0){
+				if (Param.neuronParam.Steps_Between_Two_Spikes_In_Silence>0)
+					Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes_In_Silence;
+				else
+					Window_Size = Math.Max(1,Math.Abs(Param.detector.ReadoutU_Window_Size)) * Param.neuronParam.Steps_Between_Two_Spikes;
+			}
 			
 			int windowSize = Window_Size +
 				Param.detector.ReadoutU_Disctance_Between_Windows +
@@ -151,7 +156,8 @@ namespace Liquid
 //					Liquid_Run_Time += (windowSize*Input_Length) + Real_Inpur_Length;
 					Liquid_Run_Time = Math.Max(Real_Inpur_Length,(windowSize*Input_Length))+Liquid_Minimum_RunTime;
 				}else if (Param.detector.Approximate_OR_Classification==2){ // Classification
-					Liquid_Run_Time = Real_Inpur_Length + 1*windowSize;
+//					Liquid_Run_Time = Real_Inpur_Length + 3*windowSize;
+					Liquid_Run_Time = Real_Inpur_Length + (Real_Inpur_Length/2);
 				}
 			}else{// readout is on during input time
 				if (Param.detector.Approximate_OR_Classification==1){  //Approximate
@@ -185,7 +191,8 @@ namespace Liquid
 		                             out double[,] outputFrequency,out bool[,] inputSignal, int NorGorD, double percent,
 		                             int LearnRun_Or_TestRun_Trace,ref globalParam Param)
 		{
-			int Liquid_Run_Time = TimeInitialization(LearnVec.Input.GetLength(1),ref Param);
+			int Window_Size=0;
+			int Liquid_Run_Time = TimeInitialization(LearnVec.Input.GetLength(1),out Window_Size,ref Param);
 			
 			int tempFreq = (int) System.Math.Round((double)Liquid_Run_Time/Param.detector.LSM_1sec_interval,1,System.MidpointRounding.AwayFromZero);
 			
@@ -490,7 +497,7 @@ namespace Liquid
 				repetition = repetition * 4; // dont know why 4...
 			
 			if (Param.input2liquid.Increase_Input_by_Input_Randomization[0]==1)
-				Param.AddNoiseToData(ref Param,ref LearnData,2,Param.input2liquid.Increase_Input_by_Input_Randomization[1]/10);
+				Param.AddNoiseToData_Y_axis(ref Param,ref LearnData,2,Param.input2liquid.Increase_Input_by_Input_Randomization[1]/10);
 			
 			for (int  repet = 0; repet < repetition ; repet++) {
 				
@@ -517,10 +524,10 @@ namespace Liquid
 					int tempMaxActivity =0;
 					// Training Detector BY Sliceing Time
 					tempMaxActivity = NN[Detectors].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
-					                          ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag,
-					                          NumOfGroups,ref Param);
+					                                            ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag,
+					                                            NumOfGroups,ref Param);
 					
-					if (tempMaxActivity>MaxActivity) 
+					if (tempMaxActivity>MaxActivity)
 						MaxActivity = tempMaxActivity;
 					
 //
@@ -581,9 +588,9 @@ namespace Liquid
 						LSM temp = this.returnRef();
 						// Training Detector BY Sliceing Time
 						int tempMaxActivity = NN[Detectors[n]].CollectData(ref LiquidOutput_OutputUnits_Learn,ref LiquidOutput_InputUnits_Learn,
-						                             ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag, NumOfGroups ,ref Param);
+						                                                   ref LearnData[vector].Target,ref temp ,LearnData[vector].Input.GetLength(1), (vector==0),LearnData[vector].Tag, NumOfGroups ,ref Param);
 						
-						if (tempMaxActivity>MaxActivity) 
+						if (tempMaxActivity>MaxActivity)
 							MaxActivity = tempMaxActivity;
 
 						LiquidOutput_InputUnits_Learn = null;
@@ -783,9 +790,9 @@ namespace Liquid
 						double max = 0;
 						for (int g = 0; g < Detector_Output[vec].Length; g++)
 							if (Detector_Output[vec][g]> max){
-								output[vec,detector] = g;
-								max = Detector_Output[vec][g];
-							}
+							output[vec,detector] = g;
+							max = Detector_Output[vec][g];
+						}
 					}else{
 						for (int i = 0; i < Detector_Output[vec].Length ; i++) {
 							if (Detector_Output[vec][i] == 0)
