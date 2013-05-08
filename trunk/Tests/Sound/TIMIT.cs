@@ -159,7 +159,7 @@ namespace Liquid_Detector.Tests.Sound.TIMIT
 							globalParam.Data[] T_Data = SoundData_to_Learn;
 //							Param.AddNoiseToData_Y_axis(ref Param,ref T_Data,3,0.1);
 //							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref SoundData_to_Learn,0);
-							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref T_Data,1);
+							LastReturnError = LSM_Net.Learn_Multiple_Targets(ref Param, ref T_Data,0);
 							
 							
 							// Testing //
