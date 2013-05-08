@@ -312,6 +312,14 @@ namespace Liquid
 //			Param.detector.LSM_Adjustment_Time_at_Beginning = 0;
 			
 			if ((Param.neuronParam.Active_STDP_rule==1)&&(repetition>0)){
+				
+				// Add SDTP value to all neurons
+				for (int i = 0; i < LSMnet.ListOfAllNeurons.Length; i++) {
+					LSMnet.ListOfAllNeurons[i].STDP =1;
+					LSMnet.ListOfAllNeurons[i].reset(ref Param);
+				}
+				// ---
+				
 				Int64[] last = new Int64[]{0,0,0};
 //				double[] STDPChange = new double[]{Param.neuronParam.STDPMaxChange[0],Param.neuronParam.STDPMaxChange[1]};
 				
@@ -401,6 +409,13 @@ namespace Liquid
 //					Param.neuronParam.STDPMaxChange[1] = STDPChange[1] ;
 //				}
 				
+				
+				// remove SDTP value to all neurons
+				for (int i = 0; i < LSMnet.ListOfAllNeurons.Length; i++) {
+					LSMnet.ListOfAllNeurons[i].STDP =0;
+					LSMnet.ListOfAllNeurons[i].reset(ref Param);
+				}
+				// ---
 			}
 //			Param.detector.LSM_Adjustment_Time_at_Beginning = backup1;
 //			Param.detector.LSM_Adjustment_Time_at_Ending = backup2;
@@ -418,6 +433,16 @@ namespace Liquid
 			Console.WriteLine("Start Silent tuning...");
 			if (((Param.neuronParam.Slideing_Threshold>0)||(Param.neuronParam.Active_STDP_rule==1))
 			    &&(maxRepeteration>0)){
+				
+				if (Param.neuronParam.Active_STDP_rule==1){
+					// add SDTP value to all neurons
+					for (int i = 0; i < LSMnet.ListOfAllNeurons.Length; i++) {
+						LSMnet.ListOfAllNeurons[i].STDP =1;
+						LSMnet.ListOfAllNeurons[i].reset(ref Param);
+					}
+				}
+				// ---
+				
 				int repet =0;
 				bool[] LiquidOutput_InputUnits_Learn = new bool[0];
 				bool[,] LiquidOutput_OutputUnits_Learn = new bool[0,0];
@@ -459,6 +484,16 @@ namespace Liquid
 				Console.WriteLine("Finish Silent tuning...");
 //			Param.neuronParam.STDPMaxChange[0] = STDPChange[0] ;
 //			Param.neuronParam.STDPMaxChange[1] = STDPChange[1] ;
+				
+				if (Param.neuronParam.Active_STDP_rule==1){
+					// remove SDTP value to all neurons
+					for (int i = 0; i < LSMnet.ListOfAllNeurons.Length; i++) {
+						LSMnet.ListOfAllNeurons[i].STDP =0;
+						LSMnet.ListOfAllNeurons[i].reset(ref Param);
+					}
+				}
+				// ---
+				
 			}
 		}//--------------------------------------------------------------------
 		
